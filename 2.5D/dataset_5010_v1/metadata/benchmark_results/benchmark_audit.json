@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "valid": true,
+  "errors": [],
+  "warnings": [
+    "runtime was measured during a multi-worker throughput run; report the execution protocol and avoid presenting it as isolated single-core latency"
+  ],
+  "counts": {
+    "maps": 5010,
+    "matched_triplets": 1670,
+    "trial_rows": 90180,
+    "map_algorithm_groups": 30060,
+    "terrain_images": 5010,
+    "analysis_images": 5010,
+    "path_images": 30060
+  },
+  "checks": {
+    "invalid_success_paths": 0,
+    "noncanonical_trial_rows": 0,
+    "nonlong_trial_rows": 0,
+    "wrong_trial_count_groups": 0,
+    "invalid_stochastic_seed_groups": 0,
+    "missing_path_images": 0,
+    "relief_ordering_violations": 0,
+    "navigability_ordering_violations": 0,
+    "astar_dijkstra_cost_mismatches": 0,
+    "max_astar_dijkstra_cost_delta": 0.0
+  },
+  "failed_trials_by_algorithm": {
+    "PRM": 2790,
+    "RRT_Connect": 1530,
+    "RRT_Star": 1862
+  }
+}

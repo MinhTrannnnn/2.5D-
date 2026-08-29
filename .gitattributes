@@ -1,0 +1,5 @@
+# Published CSV artifacts are checksummed byte-for-byte and are generated with
+# RFC 4180 CRLF records by Python's csv module. Disable Git line-ending
+# normalization so a checkout continues to match SHA256SUMS_CORE.txt.
+/2.5D/dataset_5010_v1/metadata/*.csv -text -diff -merge
+/2.5D/dataset_5010_v1/metadata/paper_results/tables/*.csv -text -diff -merge

@@ -1,0 +1,126 @@
+{
+  "schema_version": "2.1",
+  "generated_by": "generate_25d_dataset.py",
+  "purpose": "matched 2.5D terrain dataset",
+  "preview_only": false,
+  "status": "complete",
+  "families": [
+    "smooth_obstacles",
+    "rolling",
+    "mountain",
+    "rugged",
+    "plateau"
+  ],
+  "difficulties": [
+    "easy",
+    "medium",
+    "hard"
+  ],
+  "instances_per_family": 334,
+  "maps_per_matched_group": 3,
+  "tasks_per_matched_group": 10,
+  "matched_difficulty_design": true,
+  "shared_start_goal_across_difficulties": true,
+  "task_storage": "embedded in each map JSON and indexed by metadata/task_summary.csv",
+  "total_matched_groups": 1670,
+  "total_maps": 5010,
+  "total_unique_tasks": 16700,
+  "total_map_task_records": 50100,
+  "render_style": "terrain_natural_accessible_v1",
+  "visual_palette": {
+    "showcase": "natural_accessible",
+    "elevation_analysis": "cividis",
+    "traversability_cost": "viridis_r",
+    "categorical_causes": "okabe_ito_derived"
+  },
+  "storage_layout": "family_partitioned_v1",
+  "image_layout": {
+    "terrain": "images/terrain/<family>",
+    "analysis": "images/analysis/<family>",
+    "paths": "images/paths/<family>",
+    "contact_sheets": "images/contact_sheets",
+    "terrain_contact_sheet": "images/contact_sheets/terrain_triplet_001.png",
+    "path_contact_sheet": "images/contact_sheets/path_hard.png"
+  },
+  "representative_images_only": false,
+  "representative_instance_index": 1,
+  "path_planning_outputs_included": true,
+  "generation_execution": {
+    "workers_used": [
+      6
+    ],
+    "parallel_image_rendering": true,
+    "maps_with_requested_images": 15,
+    "maps_rendered_this_invocation": 0,
+    "resume_supported": true,
+    "checkpoint_unit": "matched terrain group",
+    "checkpoint_file": "metadata/generation_progress.jsonl",
+    "signature_hash": "dac4ef8a60ba2ae88625271535c63e284e0ee2eed43d5ed5bf1552a99cee1759"
+  },
+  "configuration": {
+    "size": 128,
+    "cell_size": 0.25,
+    "footprint_radius": 0.45,
+    "endpoint_margin": 1.5,
+    "max_slope_degrees": 28.0,
+    "max_step_height": 0.65,
+    "max_roughness": 0.1,
+    "slope_weight": 3.0,
+    "traversability_slope_weight": 0.45,
+    "traversability_roughness_weight": 0.25,
+    "traversability_step_weight": 0.3,
+    "min_navigable_fraction": 0.2,
+    "max_navigable_fraction": 0.95,
+    "min_largest_component_fraction": 0.2,
+    "max_slope": 0.5317094316614788,
+    "footprint_cells": 2,
+    "analysis_window": 5,
+    "endpoint_margin_cells": 6
+  },
+  "path_preview": {
+    "algorithm": "A_Star",
+    "difficulty": "hard",
+    "count": 5,
+    "directory": "images/paths/<family>",
+    "contact_sheet": "images/contact_sheets/path_hard.png"
+  },
+  "planner_benchmarks": {
+    "pathfinding_benchmark_v1": {
+      "task_scope": "canonical",
+      "algorithms": [
+        "BFS",
+        "Dijkstra",
+        "A_Star",
+        "PRM",
+        "RRT_Connect",
+        "RRT_Star"
+      ],
+      "stochastic_trials": 5,
+      "path_render_scope": "canonical_all",
+      "map_count": 5010,
+      "trial_row_count": 90180,
+      "path_image_count_expected": 30060,
+      "trials_file": "metadata/pathfinding_benchmark_v1_trials.csv",
+      "summary_file": "metadata/pathfinding_benchmark_v1_summary.csv",
+      "protocol_file": "metadata/pathfinding_benchmark_v1_protocol.json"
+    }
+  },
+  "map_image_scope": "all_maps",
+  "full_map_images": {
+    "terrain_count": 5010,
+    "analysis_count": 5010,
+    "renderer": "render_25d_dataset_images.py",
+    "resume_supported": true
+  },
+  "release": {
+    "status": "release_ready",
+    "benchmark_prefix": "pathfinding_benchmark_v1",
+    "benchmark_results": "metadata/benchmark_results",
+    "release_notes": "metadata/RELEASE_NOTES.md",
+    "release_manifest": "metadata/release_manifest.json",
+    "file_list": "metadata/release_filelist.csv",
+    "core_checksums": "metadata/SHA256SUMS_CORE.txt",
+    "map_checksums": "metadata/SHA256SUMS_MAPS.txt",
+    "archive_created": false
+  }
+}

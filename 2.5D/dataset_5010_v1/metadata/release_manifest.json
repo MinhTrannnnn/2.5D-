@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0",
+  "release_status": "release_ready",
+  "dataset": "dataset_5010_v1",
+  "archive_created": false,
+  "archive_note": "create only after selecting the target repository and archive format",
+  "inventory_excludes": [
+    ".paired_preview_output",
+    "metadata/SHA256SUMS_CORE.txt",
+    "metadata/SHA256SUMS_MAPS.txt",
+    "metadata/benchmark_results/analysis_state.json",
+    "metadata/generation_progress.jsonl",
+    "metadata/generation_state.json",
+    "metadata/map_images_full_v1_progress.jsonl",
+    "metadata/map_images_full_v1_state.json",
+    "metadata/path_preview_summary.csv",
+    "metadata/pathfinding_benchmark_v1_progress.jsonl",
+    "metadata/pathfinding_benchmark_v1_state.json",
+    "metadata/release_filelist.csv",
+    "metadata/release_manifest.json"
+  ],
+  "inventory": {
+    "files": 45120,
+    "bytes": 31100596857,
+    "by_category": {
+      "analysis_image": {
+        "files": 5010,
+        "bytes": 1246435060
+      },
+      "benchmark_figure": {
+        "files": 4,
+        "bytes": 658617
+      },
+      "benchmark_table": {
+        "files": 10,
+        "bytes": 5202776
+      },
+      "contact_sheet": {
+        "files": 2,
+        "bytes": 2528471
+      },
+      "documentation_or_other": {
+        "files": 4,
+        "bytes": 14789
+      },
+      "map_json": {
+        "files": 5010,
+        "bytes": 5161292046
+      },
+      "metadata": {
+        "files": 10,
+        "bytes": 25057864
+      },
+      "planner_path_image": {
+        "files": 30060,
+        "bytes": 21196842125
+      },
+      "terrain_image": {
+        "files": 5010,
+        "bytes": 3462565109
+      }
+    }
+  },
+  "scientific_counts": {
+    "maps": 5010,
+    "matched_triplets": 1670,
+    "map_task_records": 50100,
+    "canonical_benchmark_map_tasks": 5010,
+    "benchmark_trial_rows": 90180,
+    "planner_path_images": 30060
+  },
+  "validation": {
+    "dataset_valid": true,
+    "dataset_errors": 0,
+    "dataset_warnings": 0,
+    "benchmark_audit_valid": true,
+    "invalid_success_paths": 0,
+    "missing_path_images": 0,
+    "astar_dijkstra_cost_mismatches": 0
+  },
+  "benchmark_prefix": "pathfinding_benchmark_v1",
+  "statistics": {
+    "experimental_unit": "map-algorithm after within-map trial aggregation",
+    "reported_dispersion": "sample standard deviation across maps",
+    "paired_difficulty_design": true,
+    "runtime_workers": [
+      3
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "Paired 2.5D Terrain Dataset and Planning Benchmark"
+type: software
+version: 1.0.0
+date-released: 2026-08-24
+authors:
+  - family-names: Tran
+    given-names: Quang Minh
+repository-code: "https://github.com/MinhTrannnnn/2.5D-"
+url: "https://github.com/MinhTrannnnn/2.5D-/releases/tag/v1.0.0"
+license: MIT

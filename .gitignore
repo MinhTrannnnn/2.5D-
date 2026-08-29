@@ -1,0 +1,46 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.env
+.env.*
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+/tmp/
+
+# The published repository is exclusively for the paired 2.5D dataset.
+# Keep the earlier 2D maze project and personal working files local.
+/2D/
+/cv.tex
+
+# The complete 2.5D data release is about 29 GB and belongs in a dataset
+# archive (for example Zenodo), not ordinary Git history. Keep documentation,
+# summaries, checksums, benchmark figures, and contact sheets versioned.
+/2.5D/dataset_5010_v1/maps/
+/2.5D/dataset_5010_v1/images/terrain/
+/2.5D/dataset_5010_v1/images/analysis/
+/2.5D/dataset_5010_v1/images/paths/
+/2.5D/dataset_5010_v1/metadata/pathfinding_benchmark_v1_trials.csv
+/2.5D/dataset_5010_v1/metadata/benchmark_results/tables/planner_map_level.csv
+/2.5D/release_archives/
+
+# Resume/checkpoint state is not part of the scientific release.
+/2.5D/dataset_5010_v1/.paired_preview_output
+/2.5D/dataset_5010_v1/metadata/*_progress.jsonl
+/2.5D/dataset_5010_v1/metadata/*_state.json
+/2.5D/dataset_5010_v1/metadata/benchmark_results/analysis_state.json
+/2.5D/dataset_5010_v1/metadata/path_preview_summary.csv
+
+# LaTeX build products; source, bibliography, and README remain versioned.
+/2.5D/paper/*.aux
+/2.5D/paper/*.bbl
+/2.5D/paper/*.blg
+/2.5D/paper/*.fdb_latexmk
+/2.5D/paper/*.fls
+/2.5D/paper/*.log
+/2.5D/paper/*.out
+/2.5D/paper/*.pdf
+/2.5D/paper/*.synctex.gz

@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.1",
+  "algorithms": [
+    "BFS",
+    "Dijkstra",
+    "A_Star",
+    "PRM",
+    "RRT_Connect",
+    "RRT_Star"
+  ],
+  "stochastic_algorithms": [
+    "PRM",
+    "RRT_Connect",
+    "RRT_Star"
+  ],
+  "stochastic_trials": 5,
+  "movement": {
+    "neighbors": 8,
+    "diagonal_corner_cutting": false,
+    "sampling_edge_discretization": "symmetric Bresenham 8-connected path",
+    "collision_grid_is_footprint_conditioned": true,
+    "edge_slope_limit_enforced": true,
+    "elevation_for_navigation": "footprint support-plane elevation when present; raw terrain fallback"
+  },
+  "common_objective": "sum(sqrt(planar_distance^2 + dz^2) * (1 + slope_weight * (abs(dz) / planar_distance)^2))",
+  "fixed_budgets": {
+    "PRM": {
+      "samples": 500,
+      "neighbors": 12
+    },
+    "RRT_Connect": {
+      "iterations": 5000,
+      "step_size_cells": 4.0
+    },
+    "RRT_Star": {
+      "iterations": 6000,
+      "step_size_cells": 3.0,
+      "search_radius_cells": 7.0,
+      "returns": "lowest-cost goal connection after full budget"
+    }
+  },
+  "hidden_retries": false,
+  "task_scope": "canonical",
+  "tasks_per_map_limit": null,
+  "maps_limit": null,
+  "path_render_scope": "canonical_all",
+  "parallel_execution": {
+    "workers_used": [
+      3
+    ],
+    "parallel_image_rendering": true,
+    "maps_with_retained_paths": 5010,
+    "maps_rendered_by_benchmark_workers": 4998,
+    "maps_repaired_in_final_render_pass": 0,
+    "checkpoint_unit": "one map with all requested tasks and trials",
+    "resume_supported": true,
+    "checkpoint_file": "metadata/pathfinding_benchmark_v1_progress.jsonl",
+    "signature_hash": "ac0c8f5fdb4f9a304258f843dd2532e19fbbf01e24453085c25ca0952f7bd827"
+  }
+}

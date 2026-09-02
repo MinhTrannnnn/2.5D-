@@ -238,8 +238,20 @@ deviation across maps. Outputs are written to
 `metadata/benchmark_results/{tables,figures}` with a machine-readable audit and a
 concise results report.
 
-After validation and analysis both pass, prepare the release inventory and
-checksums without creating a duplicate archive:
+After validation and analysis both pass, create the fixed learning splits and
+the pickle-free NPZ raster companions:
+
+```bash
+python create_fixed_splits.py \
+  --dataset /absolute/path/to/dataset_5010_v1 \
+  --seed 20260830
+
+python create_npz_companion.py \
+  --dataset /absolute/path/to/dataset_5010_v1 \
+  --workers 6
+```
+
+Then prepare the complete inventory and checksums:
 
 ```bash
 python prepare_25d_release.py \
@@ -247,10 +259,18 @@ python prepare_25d_release.py \
   --benchmark-prefix pathfinding_benchmark_v1
 ```
 
-This writes release notes, a complete file inventory, map/core SHA-256 lists,
-and the machine-readable `metadata/release_manifest.json`. Create an archive
-only after selecting the target repository and its preferred archive or chunk
-format.
+For the eight-file Zenodo draft, build the compact core ZIP, the NPZ companion
+ZIP, and the top-level checksum list. The five family ZIPs are reused unchanged:
+
+```bash
+python package_zenodo_draft.py \
+  --dataset /absolute/path/to/dataset_5010_v1 \
+  --archives /absolute/path/to/release_archives \
+  --version v1.0.0
+```
+
+This writes release notes, a complete file inventory, map/NPZ/core SHA-256
+lists, and the machine-readable `metadata/release_manifest.json`.
 
 Parallel execution preserves paths, seeds, costs, and success results, but
 simultaneous CPU load affects measured runtime. Use `--workers 1` for a paper

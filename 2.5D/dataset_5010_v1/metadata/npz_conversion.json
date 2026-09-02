@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "format": "NumPy NPZ (ZIP_DEFLATED collection of NPY v1 arrays)",
+  "role": "derived raster companion; JSON maps remain canonical",
+  "generator": "create_npz_companion.py",
+  "map_count": 5010,
+  "shape": [
+    128,
+    128
+  ],
+  "float32_fields": [
+    "elevation",
+    "point_slope_degrees",
+    "support_elevation",
+    "footprint_slope_degrees",
+    "roughness",
+    "step_height",
+    "traversability_cost"
+  ],
+  "uint8_fields": [
+    "grid",
+    "blocked_by_slope",
+    "blocked_by_roughness",
+    "blocked_by_step",
+    "blocked_by_combined_cost",
+    "centre_blocked"
+  ],
+  "pickle_required": false,
+  "recommended_reader": "numpy.load(path, allow_pickle=False)",
+  "total_json_bytes": 5161292046,
+  "total_npz_bytes": 1493428363,
+  "npz_to_json_size_ratio": 0.2893516487131176,
+  "manifest": "metadata/npz_manifest.csv",
+  "checksums": "metadata/SHA256SUMS_NPZ.txt",
+  "validation": {
+    "all_json_maps_converted": true,
+    "all_npz_archives_pass_crc": true,
+    "all_member_sets_match_schema": true,
+    "all_npy_headers_and_payload_lengths_valid": true
+  }
+}

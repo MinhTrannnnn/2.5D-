@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "protocol": "paired-25d-fixed-split-v1",
+  "source": "metadata/dataset_summary.csv",
+  "source_sha256": "5e599228b1ef980452527649ecbdfa2fc37ed65f6b1c7af9d40e04dea2031189",
+  "assignment_unit": "matched_group_id",
+  "stratification": "terrain family",
+  "assignment_method": "within each family, sort groups by SHA-256 of 'paired-25d-fixed-split-v1:<seed>:<matched_group_id>', then take 234 train, 50 validation, and 50 test groups",
+  "seed": 20260830,
+  "counts_per_family": {
+    "train": 234,
+    "validation": 50,
+    "test": 50
+  },
+  "family_counts": {
+    "train": {
+      "smooth_obstacles": 234,
+      "rolling": 234,
+      "mountain": 234,
+      "rugged": 234,
+      "plateau": 234
+    },
+    "validation": {
+      "smooth_obstacles": 50,
+      "rolling": 50,
+      "mountain": 50,
+      "rugged": 50,
+      "plateau": 50
+    },
+    "test": {
+      "smooth_obstacles": 50,
+      "rolling": 50,
+      "mountain": 50,
+      "rugged": 50,
+      "plateau": 50
+    }
+  },
+  "files": {
+    "train.csv": {
+      "matched_groups": 1170,
+      "maps_referenced": 3510,
+      "unique_paired_tasks": 11700,
+      "sha256": "6184e6e597a15787b49433509dec5fe3b12681ecd34173c6af8747cda9ce7d95"
+    },
+    "validation.csv": {
+      "matched_groups": 250,
+      "maps_referenced": 750,
+      "unique_paired_tasks": 2500,
+      "sha256": "7cfa8e139a0cb5d487c6febe555c3923eac9bbe3ba1fbd2228a0d53a97719603"
+    },
+    "test.csv": {
+      "matched_groups": 250,
+      "maps_referenced": 750,
+      "unique_paired_tasks": 2500,
+      "sha256": "587e9b297b8bedace51b69a67b23909e8f211a87486dc6a0116c53250c4c40ce"
+    }
+  },
+  "totals": {
+    "matched_groups": 1670,
+    "maps_referenced": 5010,
+    "unique_paired_tasks": 16700
+  },
+  "validation": {
+    "all_groups_assigned_once": true,
+    "group_leakage_count": 0,
+    "all_groups_have_easy_medium_hard": true,
+    "family_stratification_exact": true
+  },
+  "assignment_sha256": "5a406f4c3e3a24d8f63c6eebf2dc38bdc18f3303a9a5fe4e83066eab102d2a69"
+}

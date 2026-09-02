@@ -134,3 +134,66 @@ print(data["instance_id"], canonical["task_id"], xyz, planner_support_height)
 A runnable version with structural checks is provided in `examples/load_map.py`.
 Dataset-level indexes are in `metadata/dataset_summary.csv` and
 `metadata/task_summary.csv`; the map JSON remains the canonical source.
+
+## NPZ raster companion
+
+Each `maps/<family>/<instance_id>.json` has a derived companion at
+`npz/<family>/<instance_id>.npz`. The NPZ does not replace the JSON record and
+does not repeat tasks or nested metadata. Files contain standard NPY v1 members
+inside a ZIP-DEFLATED NPZ and can be opened with
+`numpy.load(path, allow_pickle=False)`.
+
+All arrays have shape `(128, 128)` and retain the JSON `[y][x]` convention.
+
+| NPZ key | Dtype |
+|---|---|
+| `elevation` | `float32` |
+| `point_slope_degrees` | `float32` |
+| `support_elevation` | `float32` |
+| `footprint_slope_degrees` | `float32` |
+| `roughness` | `float32` |
+| `step_height` | `float32` |
+| `traversability_cost` | `float32` |
+| `grid` | `uint8` |
+| `blocked_by_slope` | `uint8` |
+| `blocked_by_roughness` | `uint8` |
+| `blocked_by_step` | `uint8` |
+| `blocked_by_combined_cost` | `uint8` |
+| `centre_blocked` | `uint8` |
+
+The continuous arrays are converted to `float32` for compact numerical access;
+the six-decimal JSON values remain authoritative when exact serialized values
+are required. NPZ contains no object arrays and requires no pickle. Conversion
+details and per-file hashes are in `metadata/npz_conversion.json`,
+`metadata/npz_manifest.csv`, and `metadata/SHA256SUMS_NPZ.txt`.
+
+## Fixed split indexes
+
+`metadata/splits/train.csv`, `validation.csv`, and `test.csv` contain one row
+per `matched_group_id`; they are indexes and do not duplicate map payloads.
+Each row has the following fields:
+
+| Field | Meaning |
+|---|---|
+| `split` | `train`, `validation`, or `test`. |
+| `matched_group_id` | Assignment unit shared by the paired difficulty triplet. |
+| `family` | Terrain-family stratum. |
+| `instance_index` | One-based group index within the family. |
+| `easy_instance_id`, `medium_instance_id`, `hard_instance_id` | The three map identifiers kept together in the split. |
+| `easy_map_file`, `medium_map_file`, `hard_map_file` | Paths relative to the dataset root. |
+
+No `matched_group_id` occurs in more than one file. Every family contributes
+234/50/50 groups to train/validation/test. The deterministic assignment method,
+seed, counts, hashes, and leakage checks are stored in
+`metadata/splits/split_protocol.json`.
+
+## Adapting the reference footprint
+
+The published `grid` and `terrain_analysis` rasters are derived for the
+reference circular footprint and thresholds in `navigation`; they are not
+robot-independent ground truth. For another robot, begin with raw `elevation`,
+rasterize the new footprint, recompute the support-plane slope, roughness, step
+height, traversability cost, blocked masks, footprint-safe border, and movement
+validity, and then revalidate Start--Goal connectivity. Applying dilation
+directly to the published `grid` double-counts the reference footprint unless
+the intent is to add a separate safety margin.

@@ -16,10 +16,11 @@ Thumbs.db
 /2D/
 /cv.tex
 
-# The complete 2.5D data release is about 29 GB and belongs in a dataset
+# The complete 2.5D data release is about 32.6 GB and belongs in a dataset
 # archive (for example Zenodo), not ordinary Git history. Keep documentation,
 # summaries, checksums, benchmark figures, and contact sheets versioned.
 /2.5D/dataset_5010_v1/maps/
+/2.5D/dataset_5010_v1/npz/
 /2.5D/dataset_5010_v1/images/terrain/
 /2.5D/dataset_5010_v1/images/analysis/
 /2.5D/dataset_5010_v1/images/paths/

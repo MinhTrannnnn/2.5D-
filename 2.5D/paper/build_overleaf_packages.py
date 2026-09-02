@@ -193,7 +193,6 @@ def _build_language(language: str) -> None:
             "Upload this ZIP as a new Overleaf project. main.tex is the main document.\n"
             "All referenced figures are included in figures/.\n"
             "This English submission draft compiles with Overleaf's default pdfLaTeX engine.\n"
-            "Replace every bold bracketed repository, DOI, URL, and licence placeholder before submission.\n"
         )
         temporary_prefix = "scientific-data-en-"
     else:

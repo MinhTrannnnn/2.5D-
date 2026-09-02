@@ -121,6 +121,52 @@
     "file_list": "metadata/release_filelist.csv",
     "core_checksums": "metadata/SHA256SUMS_CORE.txt",
     "map_checksums": "metadata/SHA256SUMS_MAPS.txt",
-    "archive_created": false
+    "npz_checksums": "metadata/SHA256SUMS_NPZ.txt",
+    "fixed_splits": {
+      "directory": "metadata/splits",
+      "protocol": "metadata/splits/split_protocol.json",
+      "assignment_unit": "matched_group_id",
+      "stratification": "terrain family"
+    },
+    "archive_created": true,
+    "archives": [
+      "paired-25d-v1.0.0-core.zip",
+      "paired-25d-v1.0.0-npz.zip",
+      "paired-25d-v1.0.0-mountain.zip",
+      "paired-25d-v1.0.0-plateau.zip",
+      "paired-25d-v1.0.0-rolling.zip",
+      "paired-25d-v1.0.0-rugged.zip",
+      "paired-25d-v1.0.0-smooth-obstacles.zip"
+    ]
+  },
+  "fixed_splits": {
+    "protocol": "paired-25d-fixed-split-v1",
+    "directory": "metadata/splits",
+    "assignment_unit": "matched_group_id",
+    "stratification": "terrain family",
+    "seed": 20260830,
+    "counts_per_family": {
+      "train": 234,
+      "validation": 50,
+      "test": 50
+    },
+    "total_matched_groups": 1670,
+    "total_maps_referenced": 5010,
+    "group_leakage_count": 0
+  },
+  "npz_companion": {
+    "role": "derived raster companion; JSON maps remain canonical",
+    "directory": "npz/<family>",
+    "map_count": 5010,
+    "shape": [
+      128,
+      128
+    ],
+    "float_dtype": "float32",
+    "mask_dtype": "uint8",
+    "pickle_required": false,
+    "protocol": "metadata/npz_conversion.json",
+    "manifest": "metadata/npz_manifest.csv",
+    "checksums": "metadata/SHA256SUMS_NPZ.txt"
   }
 }

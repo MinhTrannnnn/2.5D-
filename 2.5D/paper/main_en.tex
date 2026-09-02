@@ -8,6 +8,7 @@
 \usepackage{amsmath}
 \usepackage{array}
 \usepackage{booktabs}
+\usepackage{longtable}
 \usepackage{graphicx}
 \usepackage{microtype}
 \usepackage{xurl}
@@ -15,11 +16,12 @@
 \setlength{\parindent}{1.2em}
 \setlength{\parskip}{0.35em}
 \raggedbottom
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 
 \newcommand{\datasetrepository}{Zenodo}
 \newcommand{\datasetdoi}{\url{https://doi.org/10.5281/zenodo.22074838}}
 \newcommand{\datasetlicense}{Creative Commons Attribution 4.0 International (CC BY 4.0)}
-\newcommand{\coderepository}{\url{https://github.com/MinhTrannnnn/2.5D-/releases/tag/v1.0.0}}
+\newcommand{\coderepository}{\url{https://github.com/MinhTrannnnn/2.5D-}}
 \newcommand{\figureplaceholder}[2]{%
   \fbox{\parbox[c][#1][c]{0.92\linewidth}{\centering\textbf{Figure placeholder}\\[0.6em]#2}}%
 }
@@ -48,7 +50,8 @@ map--task records, 10,020 terrain and analysis images, 30,060 planner-output
 images, and 90,180 trial records from a fixed protocol for six planners. A JSON
 schema, deterministic seeds, SHA-256 checksums, validation reports, source code,
 and a version-pinned Python environment support inspection, reproduction, and
-reuse of the data.
+reuse of the data. A pickle-free NPZ companion provides the 13 raster layers
+for faster numerical loading, while JSON remains the canonical map record.
 
 \section{Background \& Summary}
 
@@ -63,69 +66,128 @@ RELLIS-3D, WildScenes, and GOOSE provide real sensor observations and semantic
 annotations for unstructured environments\cite{rugd,rellis3d,wildscenes,goose}.
 ORFD focuses on off-road free-space detection, TartanDrive on learned vehicle
 dynamics, and STONE on voxel-level 3D traversability prediction
-\cite{orfd,tartandrive,stone}. BARN is more directly concerned with navigation,
-but represents synthetic planar occupancy and configuration-space environments
-rather than height-field terrain\cite{barn}. These resources are not
-interchangeable: the perception and dynamics datasets preserve real sensing and
-vehicle-response complexity, whereas BARN supplies a controlled end-to-end
-navigation testbed. Table~\ref{tab:related_resources} therefore compares task
-and release structure rather than attempting to rank dataset quality.
+\cite{orfd,tartandrive,stone}. Among navigation benchmarks, Verti-Bench evaluates
+mobility over extremely rugged off-road terrain in high-fidelity multi-physics
+simulation\cite{vertibench}, while MarsPlanBench and MoonPlanBench evaluate
+global planning on occupancy grids derived from Martian and Lunar digital terrain
+models\cite{planetarypathbench}. BARN is more directly concerned with navigation
+than the perception datasets, but represents synthetic planar occupancy and
+configuration-space environments rather than height-field terrain\cite{barn}.
+These resources are not interchangeable: the perception and dynamics datasets
+preserve real sensing and vehicle-response complexity, whereas BARN supplies a
+controlled end-to-end navigation testbed. Tables~\ref{tab:related_resources}
+and~\ref{tab:related_release} therefore separate dataset structure from released
+planning products rather than attempting to rank dataset quality.
 
-\begin{table}[t]
-  \caption{Comparison with related off-road datasets and navigation
-  benchmarks. Scale refers to the primary released or annotated unit reported
-  by each source, so sensor frames and navigation maps are not treated as
-  equivalent samples. ``n/r'' means that an explicit licence statement was not
-  reported in the cited paper or project page; it does not imply that the
-  material is free of restrictions.}
-  \label{tab:related_resources}
-  \centering
-  \scriptsize
-  \setlength{\tabcolsep}{2.7pt}
-  \renewcommand{\arraystretch}{1.14}
-  \begin{tabular}{p{0.105\linewidth} p{0.13\linewidth} p{0.135\linewidth}
-                  p{0.135\linewidth} p{0.095\linewidth} p{0.145\linewidth}
-                  p{0.145\linewidth}}
+{\footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \renewcommand{\arraystretch}{1.16}
+  \begin{longtable}{L{0.12\linewidth} L{0.17\linewidth} L{0.20\linewidth}
+                   L{0.26\linewidth} L{0.15\linewidth}}
+  \caption{Structural comparison with related off-road datasets and navigation
+  benchmarks. Scale denotes the primary released or annotated unit, so sensor
+  frames and navigation maps are not treated as equivalent samples. ``n/a''
+  means not applicable; ``n/r'' means not reported by the cited source.}
+  \label{tab:related_resources}\\
     \toprule
-    Resource & Origin and representation & Released scale & Traversability or
-    robot conditioning & Paired difficulty & Planning artifacts & Public
-    release support \\
+    Resource & Origin and representation & Scale & Traversability or robot
+    conditioning & Paired difficulty \\
     \midrule
-    RELLIS-3D\cite{rellis3d} & Real RGB and LiDAR & 13,556 LiDAR scans; 6,235
-    images & Semantic terrain labels; no footprint conditioning & No & No fixed
-    Start--Goal or planner outputs & Data, splits, and code; CC BY-NC-SA 3.0 \\
-    ORFD\cite{orfd} & Real RGB and LiDAR & 12,198 synchronised pairs & Three
-    free-space classes; no explicit footprint model & No & Free-space benchmark;
-    no route suite & Data and code; licence n/r \\
-    RUGD\cite{rugd} & Real RGB video & 7,453 annotated frames & Semantic terrain
-    labels; no footprint conditioning & No & Segmentation splits; no route suite
-    & Data and splits; licence n/r \\
-    WildScenes\cite{wildscenes} & Real images and LiDAR point clouds & 9,306
-    annotated images; 12,148 point-cloud samples & Semantic labels; no footprint
-    conditioning & No & Segmentation splits and evaluation code; no routes & Data
-    DOI and code; CC BY-NC-SA 4.0 \\
-    GOOSE\cite{goose} & Real RGB/NIR images and point clouds & 10,000 labelled
-    pairs in the paper release & Semantic labels; no footprint conditioning & No
-    & Segmentation challenges; no route suite & Data and documentation; CC BY-SA \\
-    TartanDrive\cite{tartandrive} & Real multimodal driving trajectories,
-    including height maps & About 200,000 interactions & Vehicle-response data,
-    not a traversability grid & No & Dynamics train/test splits; no planner
-    outputs & Data and code; CC BY 4.0 \\
-    STONE\cite{stone} & Real cameras, LiDAR, radar, and 3D voxels & 43 sequences;
-    50,878 frames & Geometry-aware 3D traversability labels & No & Voxel-prediction
-    benchmark; no fixed route suite & Paper/code public; dataset announced; CC
-    BY-NC-ND 4.0 \\
-    BARN\cite{barn} & Synthetic 2D occupancy and configuration-space maps & 300
-    navigation environments & Robot-size-adaptable configuration space & Ordered
-    independent environments, not paired & Paths, difficulty metrics, baseline
-    trials, and code & Data and code; licence n/r \\
-    This release & Synthetic 2.5D height fields and derived raster layers & 5,010
-    maps; 50,100 map--task records & Footprint-aware slope, roughness, step, cost,
-    and collision layers & Yes: 1,670 Easy--Medium--Hard triplets & Fixed shared
-    tasks, six-planner outputs, and a fixed protocol & Data: CC BY 4.0; code: MIT \\
+    \endfirsthead
+    \multicolumn{5}{c}{Table~\thetable{} (continued)}\\
+    \toprule
+    Resource & Origin and representation & Scale & Traversability or robot
+    conditioning & Paired difficulty \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{5}{r}{Continued on next page}\\
+    \endfoot
     \bottomrule
-  \end{tabular}
-\end{table}
+    \endlastfoot
+    RELLIS-3D\cite{rellis3d} & Real RGB and LiDAR & 13,556 LiDAR scans; 6,235
+    images (maps/tasks: n/a) & Semantic terrain labels; no footprint conditioning & No \\
+    ORFD\cite{orfd} & Real RGB and LiDAR & 12,198 synchronised pairs
+    (maps/tasks: n/a) & Three free-space classes; no explicit footprint model & No \\
+    RUGD\cite{rugd} & Real RGB video & 7,453 annotated frames (maps/tasks: n/a) &
+    Semantic terrain labels; no footprint conditioning & No \\
+    WildScenes\cite{wildscenes} & Real images and LiDAR point clouds & 9,306
+    annotated images; 12,148 point-cloud samples (maps/tasks: n/a) & Semantic
+    labels; no footprint conditioning & No \\
+    GOOSE\cite{goose} & Real RGB/NIR images and point clouds & 10,000 labelled
+    pairs in the paper release (maps/tasks: n/a) & Semantic labels; no footprint
+    conditioning & No \\
+    TartanDrive\cite{tartandrive} & Real multimodal driving trajectories,
+    including height maps & About 200,000 interactions (map/task counts n/r) &
+    Vehicle-response data, not a traversability grid & No \\
+    STONE\cite{stone} & Real cameras, LiDAR, radar, and 3D voxels & 43 sequences;
+    50,878 frames (map/task counts n/r) & Geometry-aware 3D traversability labels & No \\
+    BARN\cite{barn} & Synthetic 2D occupancy and configuration-space maps & 300
+    maps; 300 predefined Start--Goal tasks & Robot-size-adaptable configuration
+    space & Ordered independent environments, not paired \\
+    Verti-Bench\cite{vertibench} & Simulated 2.5D elevation, semantic, and
+    terrain-physics maps & 100 maps; 1,000 Start--Goal tasks & Nine vehicle types
+    and multi-physics vehicle--terrain interaction & No; elevation levels are
+    sampled independently \\
+    MarsPlanBench/\newline MoonPlanBench\cite{planetarypathbench} & Mission-derived 2D occupancy
+    grids from planetary DTMs/DEMs & More than 2,000 Mars maps; 36 Moon maps;
+    task count n/r & Slope-threshold traversability; no rover footprint or
+    dynamics & No; multiple slope thresholds are not paired-difficulty groups \\
+    This release & Synthetic 2.5D height fields; JSON records and NPZ raster
+    companions &
+    5,010 maps; 16,700 unique paired tasks; 50,100 map--task records &
+    Footprint-aware slope, roughness, step, cost, and collision layers & Yes:
+    1,670 Easy--Medium--Hard triplets \\
+  \end{longtable}
+}
+
+{\footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.16}
+  \begin{longtable}{L{0.18\linewidth} L{0.44\linewidth} L{0.29\linewidth}}
+  \caption{Released planning products, fixed splits, and availability for the
+  resources in Table~\ref{tab:related_resources}. ``Licence n/r'' means that
+  the cited source did not report a licence; it does not imply unrestricted use.}
+  \label{tab:related_release}\\
+    \toprule
+    Resource & Planner outputs and fixed splits & Data, code, and licence \\
+    \midrule
+    \endfirsthead
+    \multicolumn{3}{c}{Table~\thetable{} (continued)}\\
+    \toprule
+    Resource & Planner outputs and fixed splits & Data, code, and licence \\
+    \midrule
+    \endhead
+    \midrule
+    \multicolumn{3}{r}{Continued on next page}\\
+    \endfoot
+    \bottomrule
+    \endlastfoot
+    RELLIS-3D\cite{rellis3d} & No fixed Start--Goal or planner outputs;
+    split: yes & Data and code; CC BY-NC-SA 3.0 \\
+    ORFD\cite{orfd} & Free-space benchmark; no route suite; split: n/r & Data
+    and code; licence n/r \\
+    RUGD\cite{rugd} & No route suite; segmentation split: yes & Data and splits;
+    licence n/r \\
+    WildScenes\cite{wildscenes} & No routes; segmentation split: yes;
+    evaluation code & Data DOI and code; CC BY-NC-SA 4.0 \\
+    GOOSE\cite{goose} & No route suite; train/validation/test split: yes & Data:
+    CC BY-SA 4.0; code: MIT \\
+    TartanDrive\cite{tartandrive} & No planner outputs; dynamics train/test
+    split: yes & Data and code; CC BY 4.0 \\
+    STONE\cite{stone} & Voxel-prediction benchmark; no fixed route suite;
+    split: n/r & Paper/code public; dataset announced; CC BY-NC-ND 4.0 \\
+    BARN\cite{barn} & Paths, difficulty metrics, and baseline results; no fixed
+    train/test split & Data and code; licence n/r \\
+    Verti-Bench\cite{vertibench} & Ten-system results over all tasks; no task
+    used for training & Data and code; MIT for code, third-party components under
+    their own licences \\
+    MarsPlanBench/\newline MoonPlanBench\cite{planetarypathbench} & Classical- and learned-planner
+    results; split: n/r & Public code and data; licence n/r \\
+    This release & Fixed shared tasks, six-planner outputs, a fixed protocol,
+    and group-level train/validation/test splits & Data: CC BY 4.0; code: MIT \\
+  \end{longtable}
+}
 
 Against this context, the release provides a complementary, controlled
 procedural design for grid-based ground-robot planning: large-scale terrain
@@ -152,12 +214,12 @@ plateau-like structures.
 Each base terrain realisation is generated independently from a seed and then
 converted into Easy, Medium, and Hard members. The members retain the same
 large-scale terrain structure and ten Start--Goal coordinates, but differ in
-relief and local surface detail. They are therefore paired observations rather
+the relief-severity parameter and local surface detail. They are therefore paired observations rather
 than independent maps. Difficulty-acceptance criteria constrain the navigable
 fraction, the size and share of the largest connected component, the number of
 connected components, and collision-boundary density. Construction also
-requires relief to increase and navigable fraction to decrease from Easy to
-Hard.
+requires the relief-severity parameter $q$ to increase and navigable fraction
+to decrease from Easy to Hard.
 
 The release contains 1,670 paired triplets and 5,010 map files. Each triplet
 contributes ten shared tasks: three short, four medium, and three long tasks.
@@ -252,18 +314,18 @@ constants are listed in Table~\ref{tab:family-parameters}.
   and amplitudes follow the distributions stated in the text. All amplitude
   constants are in metres.}
   \label{tab:family-parameters}
-  \small
-  \resizebox{\textwidth}{!}{%
+  \footnotesize
   \begin{tabular}{lccccc}
     \toprule
-    Family & $\beta_f$ & Hills $(N,A_{h,f})$ & Ridges $(N,A_{r,f})$ & Mesas $N$ & Rough patches $(N,A_{p,f})$ \\
+    Family & $\beta_f$ & \shortstack{Hills\\$(N,A_{h,f})$} &
+    \shortstack{Ridges\\$(N,A_{r,f})$} & \shortstack{Mesas\\$N$} &
+    \shortstack{Rough patches\\$(N,A_{p,f})$} \\
     \midrule
     \texttt{rolling}  & 0.24 & $(9,2.2)$  & $(1,2.4)$ & 1 & $(2,0.10)$ \\
     \texttt{mountain} & 0.38 & $(12,3.8)$ & $(3,4.2)$ & 1 & $(2,0.14)$ \\
     \texttt{rugged}   & 0.48 & $(13,2.8)$ & $(2,3.2)$ & 2 & $(6,0.26)$ \\
     \bottomrule
   \end{tabular}
-  }
 \end{table}
 
 The \texttt{smooth\_obstacles} background is
@@ -291,7 +353,8 @@ so that their minimum is zero.
 \subsection{Paired difficulty construction}
 
 For each base surface, a family-dependent local-detail field is constructed
-with a generator seeded by the realised seed XOR \texttt{0x5F3759DF}. A
+with a generator seeded by the bitwise XOR of the realised seed and
+\texttt{0x5F3759DF}. A
 standard-normal field is Gaussian-filtered with correlation $\sigma_f$ and
 divided by its sample standard deviation. Independently, a $U(0,1)$ field is
 filtered with $\sigma=L/12$; values below its $\rho_f$ quantile are removed,
@@ -346,7 +409,7 @@ multiplier $q$; it is not the realised max--min elevation range.
 
 Candidate selection uses the footprint-aware collision grid described below.
 Table~\ref{tab:difficulty-acceptance} gives all acceptance ranges and boundary
-thresholds. Within every accepted triplet, relief strictly increases and the
+thresholds. Within every accepted triplet, $q$ strictly increases and the
 navigable fraction decreases by more than 0.01 at each difficulty transition.
 Candidate combinations are ranked by distance from the target navigable
 fractions; the program examines up to the top 12 combinations and retains the
@@ -357,23 +420,40 @@ constructed.
   \centering
   \caption{Difficulty-acceptance criteria used during terrain generation. The
   first three rows apply to four terrain families; \texttt{plateau} uses
-  separately calibrated ranges.}
+  separately calibrated ranges. The upper block gives the calibration bands;
+  the lower block gives the corresponding structural constraints.}
   \label{tab:difficulty-acceptance}
   \small
-  \resizebox{\textwidth}{!}{%
-  \begin{tabular}{llccccccc}
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{llccc}
     \toprule
-    Scope & Difficulty & $q_{\min}$--$q_{\max}$ & Navigable fraction & Target & Minimum largest-component fraction & Maximum components & Minimum largest-component share & Maximum boundary density \\
+    Scope & Difficulty & $q_{\min}$--$q_{\max}$ &
+    \shortstack{Navigable\\fraction} & Target \\
     \midrule
-    General & Easy   & 0.18--1.05 & 0.72--0.94 & 0.84 & $\geq0.65$ & 40 & 0.90 & 0.080 \\
-    General & Medium & 0.48--2.40 & 0.54--0.76 & 0.65 & $\geq0.45$ & 60 & 0.84 & 0.085 \\
-    General & Hard   & 0.90--4.80 & 0.40--0.65 & 0.52 & $\geq0.34$ & 75 & 0.80 & 0.090 \\
-    Plateau & Easy   & 0.18--1.25 & 0.80--0.90 & 0.84 & $\geq0.70$ & 25 & 0.90 & 0.060 \\
-    Plateau & Medium & 1.20--3.20 & 0.73--0.82 & 0.78 & $\geq0.62$ & 30 & 0.90 & 0.060 \\
-    Plateau & Hard   & 2.80--6.00 & 0.69--0.76 & 0.73 & $\geq0.55$ & 35 & 0.88 & 0.060 \\
+    General & Easy   & 0.18--1.05 & 0.72--0.94 & 0.84 \\
+    General & Medium & 0.48--2.40 & 0.54--0.76 & 0.65 \\
+    General & Hard   & 0.90--4.80 & 0.40--0.65 & 0.52 \\
+    Plateau & Easy   & 0.18--1.25 & 0.80--0.90 & 0.84 \\
+    Plateau & Medium & 1.20--3.20 & 0.73--0.82 & 0.78 \\
+    Plateau & Hard   & 2.80--6.00 & 0.69--0.76 & 0.73 \\
     \bottomrule
   \end{tabular}
-  }
+
+  \medskip
+  \begin{tabular}{llcccc}
+    \toprule
+    Scope & Difficulty & $\lambda_{\min}$ &
+    \shortstack{Maximum\\components} & $\psi_{\min}$ &
+    $\delta_{B,\max}$ \\
+    \midrule
+    General & Easy   & $\geq0.65$ & 40 & 0.90 & 0.080 \\
+    General & Medium & $\geq0.45$ & 60 & 0.84 & 0.085 \\
+    General & Hard   & $\geq0.34$ & 75 & 0.80 & 0.090 \\
+    Plateau & Easy   & $\geq0.70$ & 25 & 0.90 & 0.060 \\
+    Plateau & Medium & $\geq0.62$ & 30 & 0.90 & 0.060 \\
+    Plateau & Hard   & $\geq0.55$ & 35 & 0.88 & 0.060 \\
+    \bottomrule
+  \end{tabular}
 \end{table}
 
 For an $H\times W$ collision grid $G$, let
@@ -404,7 +484,11 @@ $\lambda_{\min}$, the candidate score is exactly
 \end{equation}
 where $[x]_+=\max(0,x)$. Candidates are sorted by $S$, filtered by every limit
 in Table~\ref{tab:difficulty-acceptance}, and the first six feasible candidates
-per difficulty are retained. A triplet score is $\sum_d S_d$.
+per difficulty are retained. Before the full motion-graph calculation, the
+inexpensive screen rejects candidates with
+$\widetilde\lambda<0.95\lambda_{\min}$; the exact $\lambda_{\min}$ threshold is
+still applied after connected components are recomputed. A triplet score is
+$\sum_d S_d$.
 
 \subsection{Robot-footprint-aware terrain analysis}
 
@@ -417,8 +501,9 @@ radius 0.45 m. At 0.25-m cell spacing, the digital radius is
 \end{equation}
 Thus the mask contains exactly 13 offsets in a $5\times5$ window: the centre,
 four axial offsets at radius one, four diagonal offsets $(\pm1,\pm1)$, and four
-axial offsets at radius two. The configuration was not derived from
-a specific physical robot. The four values---0.45-m radius, $28^\circ$ slope,
+axial offsets at radius two. This upward rounding is conservative: the outer
+axial samples lie 0.50 m from the centre although the nominal radius is 0.45 m.
+The configuration was not derived from a specific physical robot. The four values---0.45-m radius, $28^\circ$ slope,
 0.10-m roughness, and 0.65-m step height---were fixed before release generation
 to define a reference robot and to produce both traversable and blocked regions
 across all five terrain families. They are not universal mechanical limits for
@@ -431,8 +516,8 @@ robot-centre location. The plane intercept is stored as
 \texttt{support\_elevation}; the horizontal gradient magnitude is converted to
 degrees and stored as \texttt{footprint\_slope\_degrees}. Roughness is the root
 mean square of elevation residuals from the plane. Local step height is the
-largest absolute height difference between adjacent cells observed within the
-footprint. A point-gradient slope layer after light smoothing is also retained
+largest eight-neighbour elevation difference at central cells within the
+digital mask. A point-gradient slope layer after light smoothing is also retained
 for descriptive analysis, but it is not used to determine the traversability
 grid or navigation cost.
 
@@ -560,8 +645,9 @@ For family $f$ and within-family index $i$:
   combinations unless $q_{\mathrm{Easy}}<q_{\mathrm{Medium}}<q_{\mathrm{Hard}}$
   and $\phi_{d}-\phi_{d+1}>0.01$. Sort the rest by $\sum_d S_d$.
   \item For at most the first 12 combinations, construct ten tasks on the Hard
-  member using task seed $(s_{f,i}+104{,}729a)$ XOR \texttt{0x6A09E667} and the
-  deterministic rules above. Reject the combination if any task endpoints are
+  member using the bitwise XOR of $(s_{f,i}+104{,}729a)$ and
+  \texttt{0x6A09E667} as the task seed, following the deterministic rules
+  above. Reject the combination if any task endpoints are
   disconnected in any of its three members.
   \item Return the first surviving combination and serialize its three maps
   with the same tasks. If none survives, continue with attempt $a+1$; report a
@@ -574,11 +660,17 @@ The release contains a fixed-protocol benchmark for breadth-first search (BFS),
 Dijkstra\cite{dijkstra}, A*\cite{astar}, a probabilistic roadmap (PRM)
 implementation\cite{prm}, RRT-Connect\cite{rrtconnect}, and
 RRT*\cite{rrtstar}. The benchmark evaluates the canonical long task on all
-5,010 maps. BFS is an unweighted reference that minimises the number of
-transitions; Dijkstra and A* minimise the common weighted objective. The
-deterministic planners run once per map. PRM, RRT-Connect, and RRT* run with
-five fixed seeds; the system performs no additional reruns beyond these five
-documented seeds.
+5,010 maps. This scope was fixed before execution to provide one consistently
+defined long-route unit per map and to obtain complete coverage of all paired
+difficulty members under the same computational protocol. It is a reference
+validation benchmark, not an exhaustive evaluation of the ten-task suite. All
+ten tasks remain published, and the released command-line program supports an
+all-task run without regenerating terrain. Results reported here should not be
+generalised to the other nine tasks. BFS is an unweighted reference that
+minimises the number of transitions; Dijkstra and A* minimise the common
+weighted objective. The deterministic planners run once per map. PRM,
+RRT-Connect, and RRT* run with five fixed seeds; the system performs no
+additional reruns beyond these five documented seeds.
 
 PRM samples 500 free cells and considers the 12 nearest neighbours of each
 node. RRT-Connect has a maximum budget of 5,000 iterations, a four-cell
@@ -599,6 +691,12 @@ then aggregate across maps, avoiding treatment of five seeds on one terrain as
 five independent terrain samples. Runtime was measured while the benchmark ran
 in parallel with three worker processes and is stored with that execution
 context.
+These timings describe the completed three-worker throughput run only. They are
+not used to rank planners or support inferential runtime comparisons, because
+concurrent load was present and each deterministic planner has only one timing
+observation per map. A timing study intended for performance comparison should
+run planners sequentially, repeat each configuration, and report robust
+summaries such as the median and interquartile range.
 
 \subsection{Reproducibility and integrity-check preparation}
 
@@ -610,8 +708,9 @@ at triplet or completed-map granularity. The final validator checks the core
 structure, \texttt{grid} and \texttt{elevation} arrays, recomputation of the
 collision grid and \texttt{support\_elevation}, coordinate conventions, task
 counts and connectivity, shared endpoints, and difficulty ordering. Path
-validity is checked during benchmarking. SHA-256 lists cover all 5,010 map files
-and core release metadata. The complete file inventory records relative paths,
+validity is checked during benchmarking. Three SHA-256 lists cover all 5,010
+JSON map files, 5,010 NPZ companions, and core release metadata. The complete
+file inventory records relative paths,
 content types, and byte sizes.
 
 Figure~\ref{fig:terrain-triplets} illustrates how a base terrain realisation
@@ -642,7 +741,7 @@ each paired triplet.
 The complete dataset is archived on \datasetrepository{} at
 \datasetdoi{}\cite{paired25ddata}. The corresponding source code is archived
 at \coderepository{}. The complete
-data release is approximately 31.1 GB and contains 45,120 inventoried files.
+data release is approximately 32.6 GB and contains 50,136 inventoried files.
 The source-code repository is intended for software and compact documentation,
 not as a substitute for long-term archival of the complete dataset.
 
@@ -656,6 +755,7 @@ directory. The principal structure is
 \begin{verbatim}
 dataset_5010_v1/
 |-- maps/<family>/
+|-- npz/<family>/
 |-- images/
 |   |-- terrain/<family>/
 |   |-- analysis/<family>/
@@ -664,6 +764,11 @@ dataset_5010_v1/
 |-- metadata/
 |   |-- dataset_summary.csv
 |   |-- task_summary.csv
+|   |-- splits/
+|   |   |-- train.csv
+|   |   |-- validation.csv
+|   |   |-- test.csv
+|   |   `-- split_protocol.json
 |   |-- manifest.json
 |   |-- validation_report.json
 |   |-- pathfinding_benchmark_v1_trials.csv
@@ -671,8 +776,11 @@ dataset_5010_v1/
 |   |-- pathfinding_benchmark_v1_protocol.json
 |   |-- release_manifest.json
 |   |-- release_filelist.csv
+|   |-- npz_conversion.json
+|   |-- npz_manifest.csv
 |   |-- SHA256SUMS_CORE.txt
 |   |-- SHA256SUMS_MAPS.txt
+|   |-- SHA256SUMS_NPZ.txt
 |   `-- benchmark_results/
 |       |-- RESULTS.md
 |       |-- benchmark_audit.json
@@ -740,6 +848,18 @@ coordinate conversions, units, and minimal parser are documented in
 \texttt{SCHEMA.md}; \texttt{examples/load\_map.py} supplies a reader with no
 external dependencies and basic structural checks.
 
+\subsection{NPZ raster companions}
+
+Each JSON map has a same-stem file under \texttt{npz/<family>/}. It contains
+the 13 raster fields in Table~\ref{tab:raster-fields}, all with shape
+$128\times128$: continuous layers use \texttt{float32}, and binary grids and
+masks use \texttt{uint8}. The files contain no pickled objects and can be read
+with \texttt{numpy.load(path, allow\_pickle=False)}. They are derived views for
+efficient array access; JSON remains authoritative for identifiers, tasks,
+generation settings, and metadata. Conversion details, paths, sizes, and
+per-file hashes are recorded in \texttt{npz\_conversion.json},
+\texttt{npz\_manifest.csv}, and \texttt{SHA256SUMS\_NPZ.txt}.
+
 \subsection{Metadata and benchmark records}
 
 The file \texttt{metadata/dataset\_summary.csv} is an index across all five
@@ -763,8 +883,27 @@ The \texttt{benchmark\_results/} directory contains map-level and aggregate
 tables, four benchmark-summary figures, a reader-facing report, and a machine-
 readable check report. These records support Technical Validation and later
 reuse; they do not replace the raw trial CSV. Release provenance is supported
-by \texttt{validation\_report.json}, two SHA-256 lists,
+by \texttt{validation\_report.json}, three SHA-256 lists,
 \texttt{release\_manifest.json}, and \texttt{release\_filelist.csv}.
+
+\subsection{Fixed train, validation, and test indexes}
+
+Three fixed indexes are provided in \texttt{metadata/splits/}. Assignment is
+performed on \texttt{matched\_group\_id}, rather than on individual maps, so the
+Easy, Medium, and Hard members of one base terrain and all ten shared tasks
+always remain in the same split. The assignment is stratified by terrain
+family. Within each of the five families, 234 groups are assigned to training,
+50 to validation, and 50 to test, giving 1,170/250/250 groups and
+3,510/750/750 maps overall.
+
+The assignment is deterministic. Within each family, group identifiers are
+ranked by the SHA-256 digest of the protocol name, seed 20260830, and
+\texttt{matched\_group\_id}; the first 234, next 50, and final 50 groups are
+allocated to train, validation, and test. The CSV files contain one row per
+group and list all three map identifiers and relative paths. The accompanying
+\texttt{split\_protocol.json} records the rule, seed, counts, file hashes, and
+zero-leakage checks. These indexes are intended for learned methods; the
+released reference-planner benchmark covers all maps and did not train a model.
 
 \subsection{Image products}
 
@@ -849,8 +988,13 @@ triplet. The \texttt{validation\_report.json} file records 5,010/5,010 valid
 maps and 50,100/50,100 valid map--task records, with no errors or warnings in
 these checks.
 
+All 5,010 NPZ companions were additionally checked for ZIP CRC integrity,
+the exact 13-field set, NPY headers, $128\times128$ shapes, dtypes, and payload
+lengths. The conversion report records no failed files.
+
 A supplementary release check over metadata and benchmark results examines all
-1,670 paired groups. All 1,670 groups have strictly increasing relief and
+1,670 paired groups. All 1,670 groups have a strictly increasing
+relief-severity parameter $q$ and
 strictly decreasing navigable fraction in Easy--Medium--Hard order, with zero
 violations of either condition. This check matters because the members of a
 triplet are paired samples and must not be treated as three independent
@@ -862,25 +1006,81 @@ Figure~\ref{fig:difficulty-overview} extends the ordering check with descriptive
 statistics over all 5,010 maps. Each point is the mean of 334 maps for one
 family--difficulty combination, and each error bar is one sample standard
 deviation across maps. From Easy to Hard, all five families show a decrease in
-navigable area together with increases in relief and mean footprint slope. The
+navigable area together with increases in $q$ and mean footprint slope. The
 figure confirms that difficulty labels follow the documented calibration
 criteria; it is not used to compare planner performance.
 
-\begin{figure}[htbp]
+\begin{figure}[p]
   \centering
   \IfFileExists{figures/dataset_difficulty_overview.png}{%
-    \includegraphics[width=0.98\linewidth,height=0.82\textheight,keepaspectratio]{figures/dataset_difficulty_overview.png}%
+    \includegraphics[width=\linewidth,height=0.68\textheight,keepaspectratio]{figures/dataset_difficulty_overview.png}%
   }{%
     \figureplaceholder{90mm}{Upload
     \texttt{figures/dataset\_difficulty\_overview.png}.}%
   }
   \caption{\textbf{Calibration of paired terrain difficulty across the complete
-  dataset.} The four panels show navigable fraction, relief severity, mean
+  dataset.} The four panels show navigable fraction, relief severity $q$, mean
   footprint slope, and connected-component count for five families and three
   difficulty levels. Points and error bars are the mean $\pm$ one sample
   standard deviation over 334 maps for each family--difficulty combination.}
   \label{fig:difficulty-overview}
 \end{figure}
+
+\subsection{Paired planning-difficulty validation}
+
+To assess difficulty with quantities not used by the label-acceptance rules, we
+used the canonical long task whose Start--Goal coordinates are shared by all
+three members of a triplet. The statistical unit is one matched triplet, with
+$n=334$ triplets per family. For stochastic planners, the five trials were first
+aggregated into a map-level success rate. For each metric, the within-triplet
+difference was then computed as $\Delta=\mathrm{Hard}-\mathrm{Easy}$.
+Table~\ref{tab:paired-planning-effects} reports the paired mean difference and
+the normal-approximation 95\% confidence interval
+$\bar\Delta\pm1.96s_\Delta/\sqrt{n}$.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Change in planning difficulty from Easy to Hard. $\Delta C^*$ is the
+  change in A* optimal weighted path cost. The other columns are changes in
+  success rate in percentage points. Each cell is the paired mean [95\% CI]
+  over 334 triplets.}
+  \label{tab:paired-planning-effects}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.15}
+  \begin{tabular}{lcccc}
+    \toprule
+    Terrain family & $\Delta C^*$ & $\Delta$ PRM & $\Delta$ RRT-Connect & $\Delta$ RRT* \\
+    \midrule
+    \texttt{smooth\_obstacles} & \shortstack{7.45\\{[7.02, 7.87]}} &
+      \shortstack{$-0.06$\\{$[-0.18, 0.06]$}} &
+      \shortstack{0.00\\{[0.00, 0.00]}} & \shortstack{0.00\\{[0.00, 0.00]}} \\
+    \texttt{rolling} & \shortstack{26.65\\{[25.05, 28.25]}} &
+      \shortstack{$-39.64$\\{$[-43.78, -35.50]$}} &
+      \shortstack{$-22.22$\\{$[-25.85, -18.58]$}} &
+      \shortstack{$-27.90$\\{$[-31.80, -24.01]$}} \\
+    \texttt{mountain} & \shortstack{26.04\\{[24.43, 27.65]}} &
+      \shortstack{$-44.85$\\{$[-48.90, -40.80]$}} &
+      \shortstack{$-25.57$\\{$[-29.16, -21.98]$}} &
+      \shortstack{$-29.52$\\{$[-33.33, -25.71]$}} \\
+    \texttt{rugged} & \shortstack{33.62\\{[31.87, 35.36]}} &
+      \shortstack{$-54.31$\\{$[-58.45, -50.17]$}} &
+      \shortstack{$-34.67$\\{$[-38.66, -30.69]$}} &
+      \shortstack{$-42.46$\\{$[-46.75, -38.16]$}} \\
+    \texttt{plateau} & \shortstack{4.37\\{[3.98, 4.75]}} &
+      \shortstack{0.00\\{[0.00, 0.00]}} &
+      \shortstack{0.00\\{[0.00, 0.00]}} & \shortstack{0.00\\{[0.00, 0.00]}} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Optimal cost increases from Easy to Hard in all five families, with confidence
+intervals excluding zero. Fixed-budget success decreases clearly for
+\texttt{rolling}, \texttt{mountain}, and \texttt{rugged}, but remains saturated
+near 100\% for \texttt{smooth\_obstacles} and \texttt{plateau}. Thus, the
+difficulty stratification consistently increases route cost, whereas its effect
+on success probability depends on terrain family and planner; the labels do not
+imply that every planner must degrade on every family.
 
 \subsection{Path and benchmark-output validation}
 
@@ -906,18 +1106,23 @@ canonical tasks; the maximum stored absolute difference is 0. This is a cross-
 check between two weighted graph-search implementations operating on the same
 cost model.
 
+Table~\ref{tab:validation-summary} summarises the scope and outcome of the main
+technical checks.
+
 \begin{table}[htbp]
   \centering
   \caption{Summary of technical checks on the release.}
+  \label{tab:validation-summary}
   \small
-  \begin{tabular}{p{0.43\linewidth}r r}
+  \begin{tabular}{L{0.43\linewidth}r r}
     \toprule
     Verification & Objects checked & Detected errors \\
     \midrule
     Core map-file structure & 5,010 maps & 0 \\
     Start--Goal task validity & 50,100 map--task records & 0 \\
-    Easy--Medium--Hard relief ordering & 1,670 triplets & 0 \\
+    Easy--Medium--Hard ordering of $q$ & 1,670 triplets & 0 \\
     Navigable-fraction ordering & 1,670 triplets & 0 \\
+    Cross-split \texttt{matched\_group\_id} leakage & 1,670 triplets & 0 \\
     Validity of paths reported as successful & 83,998 paths & 0 \\
     Completeness of planner-output images & 30,060 expected images & 0 \\
     A*--Dijkstra cost consistency & 5,010 canonical tasks & 0 \\
@@ -928,6 +1133,9 @@ cost model.
 For the planner-output-image row, 0 in the ``Detected errors'' column means that
 all 30,060 expected images exist. Image existence does not imply that a planner
 always found a path; success or no-path status must be read from the trial CSV.
+The split audit additionally confirms that every one of the 1,670 groups occurs
+exactly once across the three indexes and that each split has its prescribed
+per-family count.
 
 \subsection{Reproducibility}
 
@@ -935,39 +1143,66 @@ Seeds and configuration signatures are retained in the data release; Python
 and library versions are provided in the source-code repository. Regression
 tests cover horizontal planes, recovery of support-plane slope, deterministic
 task construction and stratification, symmetric edge rasterisation, corner-
-cutting rules, cost-weight use, and A*/Dijkstra agreement. Two SHA-256 lists
-allow changes to the 5,010 maps and core metadata to be detected after download.
+cutting rules, cost-weight use, and A*/Dijkstra agreement. Three SHA-256 lists
+allow changes to the 5,010 JSON maps, NPZ companions, and core metadata to be
+detected after download.
+
+\section{Usage Notes}
+
+Raster layers are indexed as \texttt{[y][x]}, whereas Start--Goal cells are
+stored as \texttt{[x,y]}; interchanging these conventions silently transposes a
+map. The dependency-free reader in \texttt{examples/load\_map.py} demonstrates
+the intended JSON access pattern. For numerical work, the same-stem NPZ file
+loads the raster arrays directly; task and configuration metadata should still
+be read from JSON. A \texttt{long} task is selected on the Hard member
+from the 0.75--0.98 band of ranked weighted distances and then copied to the
+paired Easy and Medium maps. The longest selected task is the canonical task.
+
+The supplied collision and traversability layers describe a circular 0.45-m
+reference footprint with the published geometric limits. Users evaluating a
+different robot should recompute the footprint-aware layers from raw
+\texttt{elevation}, update the footprint-safe border and movement checks, and
+revalidate task connectivity. Dilating the released \texttt{grid} directly
+would count the reference footprint twice unless an additional safety margin
+is deliberately required.
+
+For learned methods, users should follow the fixed split indexes and treat
+\texttt{matched\_group\_id} as indivisible. For paired analyses, the matched
+triplet is the statistical unit; the three difficulty members and repeated
+stochastic-planner seeds are not independent terrain samples. The dataset
+describes only static geometry through a single-valued 2.5D height field. It
+does not model soil deformation, wheel slip, or vehicle dynamics; vegetation,
+water, mud, or semantic surface properties; sensor noise or localisation
+uncertainty; or bridges, overhangs, and multi-level surfaces at one horizontal
+coordinate. The eight-connected motion model also omits vehicle heading,
+turning radius, steering constraints, and platform-specific kinematics. All
+data were generated at 0.25 m per cell, and behaviour under a change of spatial
+resolution has not been validated. Because the terrains are synthetic,
+similarity and transfer to real terrain have likewise not been quantified.
+Reference robot thresholds and planner outputs should therefore not be
+interpreted as universal operating limits or rankings.
 
 \section{Data Availability}
 
-The complete release, comprising JSON map files, Start--Goal tasks, derived
-images, benchmark records, metadata, validation reports, a file inventory, and
-SHA-256 checksums, is archived at \datasetrepository{} and identified by
+The complete release, comprising canonical JSON map files, pickle-free NPZ
+raster companions, Start--Goal tasks, fixed split indexes, derived images,
+benchmark records, metadata, validation reports, a file inventory, and SHA-256
+checksums, is archived at \datasetrepository{} and identified by
 \datasetdoi{}\cite{paired25ddata}. The dataset is released under
 \datasetlicense{}. The
 source-code repository is not a substitute for long-term archival of the full
-31.1-GB data release.
+32.6-GB data release.
 
 \section{Code Availability}
 
 The Python code used to generate terrain, analyse traversability, select tasks,
-run six planners, render images, validate records, and prepare the release will
-be archived at \coderepository{}. The cited archive must contain the exact code
-version used to produce the data, the Conda environment,
+run six planners, render images, validate records, and prepare the release is
+available at \coderepository{}. The repository contains the version
+corresponding to this review manuscript, the Conda environment,
 \texttt{requirements-lock.txt}, regression tests, and reproduction
-instructions. The source code will be released under the MIT License.
+instructions. The source code is provided under the MIT License.
 
 \begin{thebibliography}{99}
-
-\bibitem{paired25ddata}
-Tran, Q. M. A paired multi-difficulty 2.5D terrain dataset for ground-robot
-path planning. \textit{Zenodo} (2026).
-\url{https://doi.org/10.5281/zenodo.22074838}.
-
-\bibitem{fair}
-Wilkinson, M. D. et al. The FAIR Guiding Principles for scientific data
-management and stewardship. \textit{Sci. Data} \textbf{3}, 160018 (2016).
-\url{https://doi.org/10.1038/sdata.2016.18}.
 
 \bibitem{rugd}
 Wigness, M. B., Eum, S., Rogers, J. G. III, Han, D. K. \& Kwon, H. A RUGD
@@ -993,6 +1228,7 @@ Mortimer, P. et al. The GOOSE dataset for perception in unstructured
 environments. In \textit{2024 IEEE International Conference on Robotics and
 Automation (ICRA)}, 14838--14844 (2024).
 \url{https://doi.org/10.1109/ICRA57147.2024.10611298}.
+Data and code: \url{https://github.com/FraunhoferIOSB/goose_dataset}.
 
 \bibitem{orfd}
 Min, C. et al. ORFD: a dataset and benchmark for off-road freespace detection.
@@ -1012,11 +1248,29 @@ traversability dataset for off-road robot navigation. \textit{arXiv preprint}
 arXiv:2603.09175 (2026).
 \url{https://doi.org/10.48550/arXiv.2603.09175}.
 
+\bibitem{vertibench}
+Xu, T. et al. Verti-Bench: A general and scalable off-road mobility benchmark
+for vertically challenging terrain. In \textit{Robotics: Science and Systems}
+(2025). \url{https://doi.org/10.15607/RSS.2025.XXI.138}.
+Project, data and code: \url{https://people.cs.gmu.edu/~xiao/Research/Verti-Bench/}.
+
+\bibitem{planetarypathbench}
+Chanc\'{a}n, M., Banerjee, A. \& Nikolakopoulos, G. Planetary terrain datasets
+and benchmarks for rover path planning. \textit{arXiv preprint}
+arXiv:2512.21438 (2025).
+\url{https://doi.org/10.48550/arXiv.2512.21438}.
+Code and data: \url{https://github.com/mchancan/PlanetaryPathBench}.
+
 \bibitem{barn}
 Perille, D., Truong, A., Xiao, X. \& Stone, P. Benchmarking metric ground
 navigation. In \textit{2020 IEEE International Symposium on Safety, Security,
 and Rescue Robotics (SSRR)}, 116--121 (2020).
 \url{https://doi.org/10.1109/SSRR50563.2020.9292572}.
+
+\bibitem{fair}
+Wilkinson, M. D. et al. The FAIR Guiding Principles for scientific data
+management and stewardship. \textit{Sci. Data} \textbf{3}, 160018 (2016).
+\url{https://doi.org/10.1038/sdata.2016.18}.
 
 \bibitem{numpy}
 Harris, C. R. et al. Array programming with NumPy. \textit{Nature}
@@ -1055,6 +1309,11 @@ Conference on Robotics and Automation}, 995--1001 (2000).
 Karaman, S. \& Frazzoli, E. Sampling-based algorithms for optimal motion
 planning. \textit{The International Journal of Robotics Research} \textbf{30},
 846--894 (2011). \url{https://doi.org/10.1177/0278364911406761}.
+
+\bibitem{paired25ddata}
+Tran, Q. M. A paired multi-difficulty 2.5D terrain dataset for ground-robot
+path planning. \textit{Zenodo} (2026).
+\url{https://doi.org/10.5281/zenodo.22074838}.
 
 \end{thebibliography}
 

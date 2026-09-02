@@ -585,6 +585,11 @@ def _paired_effect_rows(
                         continue
                     deltas.append(float(high_value) - float(low_value))
                 mean_value, std_value = _mean_std(deltas)
+                ci95_margin = (
+                    1.96 * std_value / math.sqrt(len(deltas))
+                    if deltas
+                    else math.nan
+                )
                 result = dict(extra or {})
                 result.update(
                     {
@@ -594,6 +599,8 @@ def _paired_effect_rows(
                         "paired_groups": len(deltas),
                         "mean_delta": _round(mean_value),
                         "std_delta": _round(std_value),
+                        "mean_delta_ci95_low": _round(mean_value - ci95_margin),
+                        "mean_delta_ci95_high": _round(mean_value + ci95_margin),
                         "median_delta": _round(
                             float(np.median(deltas)) if deltas else math.nan
                         ),

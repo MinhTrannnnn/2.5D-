@@ -2,12 +2,13 @@
   "schema_version": "1.0",
   "release_status": "release_ready",
   "dataset": "dataset_5010_v1",
-  "archive_created": false,
-  "archive_note": "create only after selecting the target repository and archive format",
+  "archive_created": true,
+  "archive_note": "one core ZIP, one NPZ companion ZIP, and five terrain-family ZIPs for Zenodo",
   "inventory_excludes": [
     ".paired_preview_output",
     "metadata/SHA256SUMS_CORE.txt",
     "metadata/SHA256SUMS_MAPS.txt",
+    "metadata/SHA256SUMS_NPZ.txt",
     "metadata/benchmark_results/analysis_state.json",
     "metadata/generation_progress.jsonl",
     "metadata/generation_state.json",
@@ -20,8 +21,8 @@
     "metadata/release_manifest.json"
   ],
   "inventory": {
-    "files": 45120,
-    "bytes": 31100596857,
+    "files": 50136,
+    "bytes": 32595893734,
     "by_category": {
       "analysis_image": {
         "files": 5010,
@@ -41,15 +42,19 @@
       },
       "documentation_or_other": {
         "files": 4,
-        "bytes": 14789
+        "bytes": 20994
       },
       "map_json": {
         "files": 5010,
         "bytes": 5161292046
       },
       "metadata": {
-        "files": 10,
-        "bytes": 25057864
+        "files": 16,
+        "bytes": 26920173
+      },
+      "npz_raster_companion": {
+        "files": 5010,
+        "bytes": 1493428363
       },
       "planner_path_image": {
         "files": 30060,
@@ -67,7 +72,9 @@
     "map_task_records": 50100,
     "canonical_benchmark_map_tasks": 5010,
     "benchmark_trial_rows": 90180,
-    "planner_path_images": 30060
+    "planner_path_images": 30060,
+    "fixed_split_matched_groups": 1670,
+    "npz_raster_companions": 5010
   },
   "validation": {
     "dataset_valid": true,
@@ -76,7 +83,11 @@
     "benchmark_audit_valid": true,
     "invalid_success_paths": 0,
     "missing_path_images": 0,
-    "astar_dijkstra_cost_mismatches": 0
+    "astar_dijkstra_cost_mismatches": 0,
+    "fixed_split_valid": true,
+    "fixed_split_group_leakage": 0,
+    "npz_companion_valid": true,
+    "npz_companions_checked": 5010
   },
   "benchmark_prefix": "pathfinding_benchmark_v1",
   "statistics": {
@@ -86,5 +97,23 @@
     "runtime_workers": [
       3
     ]
+  },
+  "fixed_splits": {
+    "assignment_unit": "matched_group_id",
+    "stratification": "terrain family",
+    "train_groups": 1170,
+    "validation_groups": 250,
+    "test_groups": 250,
+    "group_leakage_count": 0,
+    "protocol": "metadata/splits/split_protocol.json"
+  },
+  "npz_companion": {
+    "role": "derived raster companion; JSON maps remain canonical",
+    "files": 5010,
+    "total_bytes": 1493428363,
+    "pickle_required": false,
+    "protocol": "metadata/npz_conversion.json",
+    "manifest": "metadata/npz_manifest.csv",
+    "checksums": "metadata/SHA256SUMS_NPZ.txt"
   }
 }

@@ -82,8 +82,8 @@ planning products rather than attempting to rank dataset quality.
 {\footnotesize
   \setlength{\tabcolsep}{3pt}
   \renewcommand{\arraystretch}{1.16}
-  \begin{longtable}{L{0.12\linewidth} L{0.17\linewidth} L{0.20\linewidth}
-                   L{0.26\linewidth} L{0.15\linewidth}}
+  \begin{longtable}{@{}L{0.18\linewidth} L{0.16\linewidth} L{0.19\linewidth}
+                   L{0.24\linewidth} L{0.15\linewidth}@{}}
   \caption{Structural comparison with related off-road datasets and navigation
   benchmarks. Scale denotes the primary released or annotated unit, so sensor
   frames and navigation maps are not treated as equivalent samples. ``n/a''
@@ -105,31 +105,31 @@ planning products rather than attempting to rank dataset quality.
     \endfoot
     \bottomrule
     \endlastfoot
-    RELLIS-3D\cite{rellis3d} & Real RGB and LiDAR & 13,556 LiDAR scans; 6,235
+    RELLIS-3D \cite{rellis3d} & Real RGB and LiDAR & 13,556 LiDAR scans; 6,235
     images (maps/tasks: n/a) & Semantic terrain labels; no footprint conditioning & No \\
-    ORFD\cite{orfd} & Real RGB and LiDAR & 12,198 synchronised pairs
+    ORFD \cite{orfd} & Real RGB and LiDAR & 12,198 synchronised pairs
     (maps/tasks: n/a) & Three free-space classes; no explicit footprint model & No \\
-    RUGD\cite{rugd} & Real RGB video & 7,453 annotated frames (maps/tasks: n/a) &
+    RUGD \cite{rugd} & Real RGB video & 7,453 annotated frames (maps/tasks: n/a) &
     Semantic terrain labels; no footprint conditioning & No \\
-    WildScenes\cite{wildscenes} & Real images and LiDAR point clouds & 9,306
+    WildScenes \cite{wildscenes} & Real images and LiDAR point clouds & 9,306
     annotated images; 12,148 point-cloud samples (maps/tasks: n/a) & Semantic
     labels; no footprint conditioning & No \\
-    GOOSE\cite{goose} & Real RGB/NIR images and point clouds & 10,000 labelled
+    GOOSE \cite{goose} & Real RGB/NIR images and point clouds & 10,000 labelled
     pairs in the paper release (maps/tasks: n/a) & Semantic labels; no footprint
     conditioning & No \\
-    TartanDrive\cite{tartandrive} & Real multimodal driving trajectories,
+    TartanDrive \cite{tartandrive} & Real multimodal driving trajectories,
     including height maps & About 200,000 interactions (map/task counts n/r) &
     Vehicle-response data, not a traversability grid & No \\
-    STONE\cite{stone} & Real cameras, LiDAR, radar, and 3D voxels & 43 sequences;
+    STONE \cite{stone} & Real cameras, LiDAR, radar, and 3D voxels & 43 sequences;
     50,878 frames (map/task counts n/r) & Geometry-aware 3D traversability labels & No \\
-    BARN\cite{barn} & Synthetic 2D occupancy and configuration-space maps & 300
+    BARN \cite{barn} & Synthetic 2D occupancy and configuration-space maps & 300
     maps; 300 predefined Start--Goal tasks & Robot-size-adaptable configuration
     space & Ordered independent environments, not paired \\
-    Verti-Bench\cite{vertibench} & Simulated 2.5D elevation, semantic, and
+    Verti-Bench \cite{vertibench} & Simulated 2.5D elevation, semantic, and
     terrain-physics maps & 100 maps; 1,000 Start--Goal tasks & Nine vehicle types
     and multi-physics vehicle--terrain interaction & No; elevation levels are
     sampled independently \\
-    MarsPlanBench/\newline MoonPlanBench\cite{planetarypathbench} & Mission-derived 2D occupancy
+    MarsPlanBench/\newline MoonPlanBench \cite{planetarypathbench} & Mission-derived 2D occupancy
     grids from planetary DTMs/DEMs & More than 2,000 Mars maps; 36 Moon maps;
     task count n/r & Slope-threshold traversability; no rover footprint or
     dynamics & No; multiple slope thresholds are not paired-difficulty groups \\
@@ -163,26 +163,26 @@ planning products rather than attempting to rank dataset quality.
     \endfoot
     \bottomrule
     \endlastfoot
-    RELLIS-3D\cite{rellis3d} & No fixed Start--Goal or planner outputs;
+    RELLIS-3D \cite{rellis3d} & No fixed Start--Goal or planner outputs;
     split: yes & Data and code; CC BY-NC-SA 3.0 \\
-    ORFD\cite{orfd} & Free-space benchmark; no route suite; split: n/r & Data
+    ORFD \cite{orfd} & Free-space benchmark; no route suite; split: n/r & Data
     and code; licence n/r \\
-    RUGD\cite{rugd} & No route suite; segmentation split: yes & Data and splits;
+    RUGD \cite{rugd} & No route suite; segmentation split: yes & Data and splits;
     licence n/r \\
-    WildScenes\cite{wildscenes} & No routes; segmentation split: yes;
+    WildScenes \cite{wildscenes} & No routes; segmentation split: yes;
     evaluation code & Data DOI and code; CC BY-NC-SA 4.0 \\
-    GOOSE\cite{goose} & No route suite; train/validation/test split: yes & Data:
+    GOOSE \cite{goose} & No route suite; train/validation/test split: yes & Data:
     CC BY-SA 4.0; code: MIT \\
-    TartanDrive\cite{tartandrive} & No planner outputs; dynamics train/test
+    TartanDrive \cite{tartandrive} & No planner outputs; dynamics train/test
     split: yes & Data and code; CC BY 4.0 \\
-    STONE\cite{stone} & Voxel-prediction benchmark; no fixed route suite;
+    STONE \cite{stone} & Voxel-prediction benchmark; no fixed route suite;
     split: n/r & Paper/code public; dataset announced; CC BY-NC-ND 4.0 \\
-    BARN\cite{barn} & Paths, difficulty metrics, and baseline results; no fixed
+    BARN \cite{barn} & Paths, difficulty metrics, and baseline results; no fixed
     train/test split & Data and code; licence n/r \\
-    Verti-Bench\cite{vertibench} & Ten-system results over all tasks; no task
+    Verti-Bench \cite{vertibench} & Ten-system results over all tasks; no task
     used for training & Data and code; MIT for code, third-party components under
     their own licences \\
-    MarsPlanBench/\newline MoonPlanBench\cite{planetarypathbench} & Classical- and learned-planner
+    MarsPlanBench/\newline MoonPlanBench \cite{planetarypathbench} & Classical- and learned-planner
     results; split: n/r & Public code and data; licence n/r \\
     This release & Fixed shared tasks, six-planner outputs, a fixed protocol,
     and group-level train/validation/test splits & Data: CC BY 4.0; code: MIT \\

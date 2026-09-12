@@ -39,7 +39,7 @@
   \fbox{\parbox[c][#1][c]{0.92\linewidth}{\centering\textbf{Vị trí đặt hình}\\[0.6em]#2}}%
 }
 
-\title{Bộ dữ liệu địa hình 2,5 chiều đa mức độ khó ghép cặp cho lập kế hoạch đường đi robot mặt đất}
+\title{Bộ dữ liệu địa hình 2,5 chiều với ba mức độ khó ghép cặp cho lập kế hoạch đường đi robot mặt đất}
 \author{%
   Tran Quang Minh\\
   \small Học viện Công nghệ Bưu chính Viễn thông, Hà Nội, Việt Nam\\
@@ -52,19 +52,19 @@
 
 \section*{Tóm tắt (Abstract)}
 
-Chúng tôi cung cấp bộ dữ liệu gồm 5.010 bản đồ trường độ cao 2,5 chiều được sinh
-theo thủ tục cho nghiên cứu lập kế hoạch đường đi robot mặt đất. Dữ liệu được tổ
-chức thành 1.670 bộ ba Dễ--Trung bình--Khó ghép cặp thuộc năm họ địa hình; ba
-thành viên giữ cùng hiện thực gốc và mười tọa độ Start--Goal. Mỗi bản đồ chứa
+Chúng tôi cung cấp bộ dữ liệu gồm 5.010 bản đồ trường độ cao 2,5 chiều được tạo
+bằng thuật toán để nghiên cứu lập kế hoạch đường đi cho robot mặt đất. Dữ liệu được tổ
+chức thành 1.670 bộ ba Dễ--Trung bình--Khó ghép cặp thuộc năm họ địa hình. Ba
+bản đồ trong mỗi bộ ba dùng cùng một mẫu địa hình gốc và mười cặp điểm đầu--đích. Mỗi bản đồ chứa
 lưới độ cao $128\times128$ với kích thước ô 0,25 m, cùng các lớp độ cao mặt đỡ,
-độ dốc, độ nhám, chiều cao bậc, chi phí khả năng di chuyển và mặt nạ va chạm đã
-xét phạm vi chiếm chỗ của robot. Bản phát hành gồm 50.100 bản ghi bản đồ--nhiệm
-vụ, 10.020 ảnh địa
-hình và phân tích, 30.060 ảnh đầu ra thuật toán, cùng 90.180 bản ghi lần chạy từ
-giao thức cố định cho sáu thuật toán. Lược đồ JSON, seed xác định, mã kiểm tra
-SHA-256, báo cáo kiểm định, mã nguồn và môi trường Python ghim phiên bản hỗ trợ
-kiểm tra, tái tạo và tái sử dụng dữ liệu. Một bản NPZ không dùng pickle cung cấp
-13 lớp raster để tải số liệu nhanh hơn, còn JSON vẫn là bản ghi bản đồ chuẩn.
+độ dốc, độ nhám, chiều cao bậc, chi phí đi qua địa hình và mặt nạ va chạm có xét
+kích thước robot. Bản phát hành gồm 50.100 bản ghi bản đồ--nhiệm vụ, 10.020 ảnh
+địa hình và ảnh phân tích, 30.060 ảnh đường đi của thuật toán, cùng 90.180 bản
+ghi kết quả chạy theo một quy trình cố định cho sáu thuật toán. Cấu trúc tệp
+JSON, hạt giống ngẫu nhiên (seed) cố định, mã kiểm tra SHA-256, báo cáo kiểm
+định, mã nguồn và môi trường Python với các phiên bản thư viện được cố định hỗ trợ
+kiểm tra, tái tạo và tái sử dụng dữ liệu. Tệp NPZ không dùng pickle cung cấp
+13 lớp dữ liệu dạng lưới (raster) để tải nhanh hơn; JSON vẫn là tệp dữ liệu gốc.
 
 \section{Bối cảnh \& Tổng quan (Background \& Summary)}
 
@@ -74,22 +74,22 @@ cục bộ và độ nhám có thể quyết định một tư thế hoặc mộ
 có khả thi hay không; đồng thời, thay đổi độ cao có thể làm thay đổi chi phí của
 một tuyến đường vốn không va chạm.
 
-Các tài nguyên off-road hiện có phục vụ nhiều bài toán bổ sung cho nhau. RUGD,
+Các bộ dữ liệu địa hình tự nhiên hiện có phục vụ nhiều bài toán khác nhau. RUGD,
 RELLIS-3D, WildScenes và GOOSE cung cấp quan sát cảm biến thực cùng nhãn ngữ
 nghĩa cho môi trường phi cấu trúc\cite{rugd,rellis3d,wildscenes,goose}. ORFD
-tập trung vào phát hiện vùng trống off-road, TartanDrive vào học động lực học
-xe, còn STONE vào dự đoán khả năng di chuyển 3D ở mức voxel
-\cite{orfd,tartandrive,stone}. Ở phía benchmark điều hướng, Verti-Bench đánh giá
-khả năng di chuyển trên địa hình off-road cực gồ ghề bằng mô phỏng đa vật lý
+tập trung vào phát hiện vùng tự do, TartanDrive vào học động lực học xe, còn
+STONE vào dự đoán khả năng đi qua địa hình trên lưới voxel 3D
+\cite{orfd,tartandrive,stone}. Về đánh giá điều hướng, Verti-Bench đánh giá
+khả năng đi qua địa hình rất gồ ghề bằng mô phỏng đa vật lý
 \cite{vertibench}, còn MarsPlanBench và MoonPlanBench đánh giá lập kế hoạch toàn
-cục trên lưới chiếm chỗ dẫn xuất từ mô hình địa hình số của Sao Hỏa và Mặt Trăng
+cục trên lưới chiếm chỗ được tạo từ mô hình địa hình số của Sao Hỏa và Mặt Trăng
 \cite{planetarypathbench}. BARN gần bài toán điều hướng hơn các bộ dữ liệu nhận
 thức, nhưng biểu diễn môi trường tổng hợp bằng lưới vật cản phẳng và không gian
 cấu hình thay vì địa hình trường độ cao\cite{barn}. Các tài nguyên này không thể
 thay thế lẫn nhau: các bộ dữ liệu nhận thức và động lực học giữ lại độ phức tạp
-của cảm biến thực và đáp ứng xe, trong khi BARN cung cấp một testbed điều hướng
+của cảm biến thực và chuyển động của xe, trong khi BARN cung cấp một môi trường thử nghiệm điều hướng
 đầu cuối có kiểm soát. Vì vậy, Bảng~\ref{tab:related_resources} và
-Bảng~\ref{tab:related_release} tách riêng cấu trúc dữ liệu với sản phẩm lập kế
+Bảng~\ref{tab:related_release} tách riêng cấu trúc dữ liệu với kết quả lập kế
 hoạch được phát hành, không xếp hạng chất lượng bộ dữ liệu.
 
 {\footnotesize
@@ -97,19 +97,19 @@ hoạch được phát hành, không xếp hạng chất lượng bộ dữ li�
   \renewcommand{\arraystretch}{1.16}
   \begin{longtable}{@{}L{0.18\linewidth} L{0.16\linewidth} L{0.19\linewidth}
                    L{0.24\linewidth} L{0.15\linewidth}@{}}
-  \caption{So sánh cấu trúc với các bộ dữ liệu off-road và benchmark điều hướng
+  \caption{So sánh cấu trúc với các bộ dữ liệu địa hình tự nhiên và bộ đánh giá điều hướng
   liên quan. Quy mô là đơn vị được phát hành hoặc gán nhãn chính, do đó frame
   cảm biến và bản đồ điều hướng không được coi là các mẫu tương đương. ``k/a''
   nghĩa là không áp dụng; ``k/n'' nghĩa là nguồn được trích dẫn không nêu rõ.}
   \label{tab:related_resources}\\
     \toprule
-    Tài nguyên & Nguồn và biểu diễn & Quy mô & Khả năng di chuyển hoặc điều kiện
+    Tài nguyên & Nguồn và biểu diễn & Quy mô & Khả năng đi qua địa hình hoặc điều kiện
     robot & Độ khó ghép cặp \\
     \midrule
     \endfirsthead
     \multicolumn{5}{c}{\tablename~\thetable{} (tiếp)}\\
     \toprule
-    Tài nguyên & Nguồn và biểu diễn & Quy mô & Khả năng di chuyển hoặc điều kiện
+    Tài nguyên & Nguồn và biểu diễn & Quy mô & Khả năng đi qua địa hình hoặc điều kiện
     robot & Độ khó ghép cặp \\
     \midrule
     \endhead
@@ -119,38 +119,38 @@ hoạch được phát hành, không xếp hạng chất lượng bộ dữ li�
     \bottomrule
     \endlastfoot
     RELLIS-3D \cite{rellis3d} & Thực; RGB và LiDAR & 13.556 scan LiDAR; 6.235 ảnh
-    (bản đồ/nhiệm vụ: k/a) & Nhãn địa hình ngữ nghĩa; không điều kiện theo
-    footprint & Không \\
+    (bản đồ/nhiệm vụ: k/a) & Nhãn địa hình ngữ nghĩa; không xét kích thước robot
+    & Không \\
     ORFD \cite{orfd} & Thực; RGB và LiDAR & 12.198 cặp đồng bộ (bản đồ/nhiệm vụ:
-    k/a) & Ba lớp vùng trống; không nêu mô hình footprint & Không \\
+    k/a) & Ba lớp vùng tự do; không nêu mô hình kích thước robot & Không \\
     RUGD \cite{rugd} & Thực; video RGB & 7.453 frame được gán nhãn (bản đồ/nhiệm
-    vụ: k/a) & Nhãn địa hình ngữ nghĩa; không điều kiện theo footprint & Không \\
+    vụ: k/a) & Nhãn địa hình ngữ nghĩa; không xét kích thước robot & Không \\
     WildScenes \cite{wildscenes} & Thực; ảnh và đám mây điểm LiDAR & 9.306 ảnh
     gán nhãn; 12.148 mẫu đám mây điểm (bản đồ/nhiệm vụ: k/a) & Nhãn ngữ nghĩa;
-    không điều kiện theo footprint & Không \\
+    không xét kích thước robot & Không \\
     GOOSE \cite{goose} & Thực; ảnh RGB/NIR và đám mây điểm & 10.000 cặp gán nhãn
     trong bản phát hành của bài báo (bản đồ/nhiệm vụ: k/a) & Nhãn ngữ nghĩa;
-    không điều kiện theo footprint & Không \\
+    không xét kích thước robot & Không \\
     TartanDrive \cite{tartandrive} & Thực; quỹ đạo lái đa phương thức, gồm bản đồ
     độ cao & Khoảng 200.000 tương tác (số bản đồ/nhiệm vụ k/n) & Dữ liệu đáp ứng
-    xe, không phải lưới khả năng di chuyển & Không \\
+    xe, không phải lưới đánh giá khả năng đi qua & Không \\
     STONE \cite{stone} & Thực; camera, LiDAR, radar và voxel 3D & 43 chuỗi; 50.878
-    frame (số bản đồ/nhiệm vụ k/n) & Nhãn khả năng di chuyển 3D dựa trên hình học
+    frame (số bản đồ/nhiệm vụ k/n) & Nhãn khả năng đi qua 3D dựa trên hình học
     & Không \\
     BARN \cite{barn} & Tổng hợp; lưới vật cản 2D và không gian cấu hình & 300 bản
-    đồ; 300 nhiệm vụ Start--Goal định trước & Không gian cấu hình thích nghi theo
+    đồ; 300 nhiệm vụ điểm đầu--đích định trước & Không gian cấu hình thích nghi theo
     kích thước robot & Các môi trường độc lập được sắp theo độ khó, không ghép cặp \\
     Verti-Bench \cite{vertibench} & Mô phỏng; bản đồ độ cao 2,5D, ngữ nghĩa và
-    vật lý địa hình & 100 bản đồ; 1.000 nhiệm vụ Start--Goal & Chín loại xe và
+    vật lý địa hình & 100 bản đồ; 1.000 nhiệm vụ điểm đầu--đích & Chín loại xe và
     tương tác xe--địa hình đa vật lý & Không; các mức độ cao được lấy mẫu độc lập \\
-    MarsPlanBench/\newline MoonPlanBench \cite{planetarypathbench} & Dẫn xuất từ dữ liệu sứ mệnh;
+    MarsPlanBench/\newline MoonPlanBench \cite{planetarypathbench} & Được tạo từ dữ liệu sứ mệnh;
     lưới chiếm chỗ 2D từ DTM/DEM hành tinh & Hơn 2.000 bản đồ Sao Hỏa; 36 bản đồ
-    Mặt Trăng; số nhiệm vụ k/n & Khả năng đi qua dựa trên ngưỡng dốc; không mô
-    hình footprint hoặc động lực học rover & Không; nhiều ngưỡng dốc không phải
+    Mặt Trăng; số nhiệm vụ k/n & Khả năng đi qua dựa trên ngưỡng dốc; không xét
+    kích thước hoặc động lực học của xe tự hành & Không; nhiều ngưỡng dốc không phải
     bộ độ khó ghép cặp \\
-    Bản phát hành này & Tổng hợp; trường độ cao 2,5D, bản ghi JSON và raster NPZ &
+    Bản phát hành này & Tổng hợp; trường độ cao 2,5D, tệp JSON và raster NPZ &
     5.010 bản đồ; 16.700 nhiệm vụ ghép cặp duy nhất; 50.100 bản ghi bản đồ--nhiệm
-    vụ & Các lớp độ dốc, độ nhám, bậc, chi phí và va chạm có xét footprint & Có:
+    vụ & Các lớp độ dốc, độ nhám, bậc, chi phí và va chạm có xét kích thước robot & Có:
     1.670 bộ ba Dễ--Trung bình--Khó \\
   \end{longtable}
 }
@@ -159,18 +159,18 @@ hoạch được phát hành, không xếp hạng chất lượng bộ dữ li�
   \setlength{\tabcolsep}{4pt}
   \renewcommand{\arraystretch}{1.16}
   \begin{longtable}{L{0.18\linewidth} L{0.44\linewidth} L{0.29\linewidth}}
-  \caption{Sản phẩm lập kế hoạch, split cố định và khả năng truy cập của các tài
+  \caption{Kết quả lập kế hoạch, cách chia tập cố định và khả năng truy cập của các tài
   nguyên trong Bảng~\ref{tab:related_resources}. ``Giấy phép k/n'' nghĩa là
   nguồn được trích dẫn không nêu giấy phép, không có nghĩa tài nguyên được dùng
   không hạn chế.}
   \label{tab:related_release}\\
     \toprule
-    Tài nguyên & Đầu ra planner và split cố định & Dữ liệu, code và giấy phép \\
+    Tài nguyên & Kết quả lập kế hoạch và cách chia tập & Dữ liệu, mã nguồn và giấy phép \\
     \midrule
     \endfirsthead
     \multicolumn{3}{c}{\tablename~\thetable{} (tiếp)}\\
     \toprule
-    Tài nguyên & Đầu ra planner và split cố định & Dữ liệu, code và giấy phép \\
+    Tài nguyên & Kết quả lập kế hoạch và cách chia tập & Dữ liệu, mã nguồn và giấy phép \\
     \midrule
     \endhead
     \midrule
@@ -178,48 +178,48 @@ hoạch được phát hành, không xếp hạng chất lượng bộ dữ li�
     \endfoot
     \bottomrule
     \endlastfoot
-    RELLIS-3D \cite{rellis3d} & Không có Start--Goal hoặc đầu ra planner cố định;
-    split: có & Dữ liệu và code; CC BY-NC-SA 3.0 \\
-    ORFD \cite{orfd} & Benchmark vùng trống; không có bộ tuyến đường; split: k/n
-    & Dữ liệu và code; giấy phép k/n \\
-    RUGD \cite{rugd} & Không có bộ tuyến đường; split phân đoạn: có & Dữ liệu và
-    split; giấy phép k/n \\
-    WildScenes \cite{wildscenes} & Không có tuyến đường; split phân đoạn: có;
-    code đánh giá & DOI dữ liệu và code; CC BY-NC-SA 4.0 \\
-    GOOSE \cite{goose} & Không có bộ tuyến đường; split train/validation/test: có
-    & Dữ liệu: CC BY-SA 4.0; code: MIT \\
-    TartanDrive \cite{tartandrive} & Không có đầu ra planner; split train/test
-    động lực học: có & Dữ liệu và code; CC BY 4.0 \\
-    STONE \cite{stone} & Benchmark dự đoán voxel; không có bộ tuyến cố định;
-    split: k/n & Bài báo/code công khai; dữ liệu được công bố kế hoạch phát hành;
+    RELLIS-3D \cite{rellis3d} & Không có cặp đầu--đích hoặc kết quả lập kế hoạch cố định;
+    có chia tập & Dữ liệu và mã nguồn; CC BY-NC-SA 3.0 \\
+    ORFD \cite{orfd} & Đánh giá phát hiện vùng tự do; không có bộ đường đi; cách chia tập k/n
+    & Dữ liệu và mã nguồn; giấy phép k/n \\
+    RUGD \cite{rugd} & Không có bộ đường đi; có tập chia cho phân đoạn ảnh & Dữ liệu và
+    tập chia; giấy phép k/n \\
+    WildScenes \cite{wildscenes} & Không có đường đi; có tập chia cho phân đoạn ảnh;
+    mã đánh giá & DOI dữ liệu và mã nguồn; CC BY-NC-SA 4.0 \\
+    GOOSE \cite{goose} & Không có bộ đường đi; có tập train/validation/test
+    & Dữ liệu: CC BY-SA 4.0; mã nguồn: MIT \\
+    TartanDrive \cite{tartandrive} & Không có kết quả lập kế hoạch; có tập train/test
+    cho bài toán động lực học & Dữ liệu và mã nguồn; CC BY 4.0 \\
+    STONE \cite{stone} & Đánh giá dự đoán trên lưới voxel; không có bộ đường đi cố định;
+    cách chia tập: k/n & Bài báo và mã nguồn công khai; dữ liệu dự kiến phát hành;
     CC BY-NC-ND 4.0 \\
-    BARN \cite{barn} & Đường đi, thước đo độ khó và kết quả baseline; không có
-    split train/test cố định & Dữ liệu và code; giấy phép k/n \\
+    BARN \cite{barn} & Đường đi, thước đo độ khó và kết quả cơ sở; không có
+    tập train/test cố định & Dữ liệu và mã nguồn; giấy phép k/n \\
     Verti-Bench \cite{vertibench} & Kết quả mười hệ thống trên toàn bộ nhiệm vụ;
-    không dùng nhiệm vụ để huấn luyện & Dữ liệu và code; MIT cho code, thành phần
+    không dùng nhiệm vụ để huấn luyện & Dữ liệu và mã nguồn; mã nguồn dùng giấy phép MIT, thành phần
     bên thứ ba theo giấy phép riêng \\
-    MarsPlanBench/\newline MoonPlanBench \cite{planetarypathbench} & Kết quả planner cổ điển và học
-    máy; split: k/n & Code và dữ liệu công khai; giấy phép k/n \\
-    Bản phát hành này & Nhiệm vụ cố định dùng chung, đầu ra sáu planner, giao thức
-    cố định và split train/validation/test theo nhóm ghép cặp & Dữ liệu: CC BY
-    4.0; code: MIT \\
+    MarsPlanBench/\newline MoonPlanBench \cite{planetarypathbench} & Kết quả thuật toán cổ điển và học
+    máy; cách chia tập: k/n & Mã nguồn và dữ liệu công khai; giấy phép k/n \\
+    Bản phát hành này & Nhiệm vụ cố định dùng chung, kết quả của sáu thuật toán,
+    quy trình cố định và tập train/validation/test theo nhóm ghép cặp & Dữ liệu:
+    CC BY 4.0; mã nguồn: MIT \\
   \end{longtable}
 }
 
-Trong bối cảnh đó, bản phát hành này bổ sung một thiết kế sinh theo thủ tục có
-kiểm soát cho bài toán lập kế hoạch robot mặt đất trên lưới: hình thái địa hình
+Trong bối cảnh đó, bản phát hành này bổ sung một phương pháp tạo dữ liệu có
+kiểm soát cho bài toán lập kế hoạch robot mặt đất trên lưới: dạng địa hình
 quy mô lớn và nhiệm vụ điều hướng được giữ nguyên trong mỗi bộ ba, trong khi độ
 khó hình học thay đổi theo quy tắc đã được mô tả. Đơn vị trung tâm là bộ ba
-Dễ--Trung bình--Khó giữ cùng hiện thực địa hình gốc và cùng nhiệm vụ Start--Goal.
-Mỗi bản đồ còn đi kèm lớp phân tích có xét footprint và đầu ra benchmark của các
-thuật toán lập kế hoạch với seed cố định. Cấu trúc ghép cặp có kiểm soát là điểm
+Dễ--Trung bình--Khó dùng cùng mẫu địa hình gốc và cùng các cặp điểm đầu--đích.
+Mỗi bản đồ còn đi kèm các lớp phân tích có xét kích thước robot và kết quả đánh
+giá của các thuật toán lập kế hoạch với seed cố định. Cấu trúc ghép cặp có kiểm soát là điểm
 phân biệt chính so với các môi trường độc lập hoặc chỉ được sắp theo độ khó; nó
-cho phép so sánh trong cùng hiện thực gốc trong khi giữ cố định họ địa hình,
-hình thái sinh từ seed và tọa độ nhiệm vụ.
+cho phép so sánh trên cùng một mẫu gốc trong khi giữ nguyên họ địa hình, hình
+dạng địa hình do seed tạo ra và tọa độ nhiệm vụ.
 
-Bộ dữ liệu này biểu diễn địa hình dưới dạng trường độ cao 2,5 chiều lấy mẫu trên
-lưới: mỗi ô tại vị trí nằm ngang $(x,y)$ có đúng một giá trị độ cao $z$, không
-có ô thiếu. Biểu diễn này hỗ trợ phân tích hình học ở tỷ lệ phạm vi chiếm chỗ,
+Bộ dữ liệu biểu diễn địa hình bằng trường độ cao 2,5 chiều trên lưới: mỗi vị trí
+nằm ngang $(x,y)$ chỉ có một giá trị độ cao $z$ và không có ô thiếu. Cách biểu
+diễn này cho phép phân tích hình học trên vùng mà robot chiếm chỗ,
 đồng thời vẫn có thể sử dụng trực tiếp cho thuật toán dựa trên lưới hoặc lấy
 mẫu. Theo chủ đích,
 nó không biểu diễn được nhiều bề mặt tại cùng một tọa độ nằm ngang, chẳng hạn
@@ -228,31 +228,31 @@ cầu, phần nhô ra hoặc hang. Năm họ địa hình gồm
 \texttt{rugged} và \texttt{plateau}; chúng cung cấp các tổ hợp khác nhau của
 khối trơn, địa hình lượn sóng, sống núi, vùng gồ ghề và cấu trúc dạng cao nguyên.
 
-Mỗi hiện thực địa hình gốc được sinh riêng với một seed rồi chuyển thành ba thành
-viên Dễ, Trung bình và Khó. Ba thành viên giữ cùng cấu trúc địa hình quy mô lớn
-và cùng mười tọa độ Start--Goal, nhưng có hệ số cường độ địa hình và chi tiết bề mặt cục
-bộ khác nhau. Vì vậy chúng là các quan sát ghép cặp, không phải các bản đồ độc
-lập. Tiêu chí chấp nhận độ khó ràng buộc tỷ lệ vùng có thể điều hướng, kích
-thước và tỷ trọng của thành phần liên thông lớn nhất, số lượng thành phần liên
+Mỗi mẫu địa hình gốc được sinh bằng một seed riêng rồi chuyển thành ba phiên bản
+Dễ, Trung bình và Khó. Ba phiên bản giữ cùng cấu trúc địa hình quy mô lớn và
+cùng mười cặp điểm đầu--đích, nhưng có hệ số độ khó và chi tiết bề mặt cục bộ
+khác nhau. Vì vậy chúng là dữ liệu ghép cặp, không phải ba bản đồ độc lập. Tiêu
+chí chấp nhận độ khó giới hạn tỷ lệ ô đi được, kích thước thành phần liên thông
+lớn nhất, tỷ lệ ô đi được thuộc thành phần này, số thành phần liên
 thông và mật độ biên va chạm. Quá trình xây dựng còn yêu cầu hệ số cường độ
-địa hình $q$ tăng và tỷ lệ vùng điều hướng được giảm dần từ Dễ đến Khó.
+địa hình $q$ tăng và tỷ lệ ô đi được giảm dần từ Dễ đến Khó.
 
 Bản phát hành có 1.670 bộ ba ghép cặp và 5.010 tệp bản đồ. Mỗi bộ ba đóng góp
 mười nhiệm vụ dùng chung, gồm ba nhiệm vụ ngắn, bốn nhiệm vụ trung bình và ba
 nhiệm vụ dài. Tổng cộng có 16.700 nhiệm vụ ghép cặp duy nhất và 50.100 bản ghi
-bản đồ--nhiệm vụ. Một nhiệm vụ dài trong mỗi bản đồ được đánh dấu là nhiệm vụ chuẩn và
-được dùng trong benchmark sáu thuật toán. Các lớp raster, nhiệm vụ, cấu hình,
-seed sinh dữ liệu, metadata cấp bản đồ, ảnh trực quan, đầu ra thuật toán, danh sách kiểm
-tra tính toàn vẹn và giao thức benchmark có thể đọc bằng máy được phát hành
+bản đồ--nhiệm vụ. Một nhiệm vụ dài trong mỗi bản đồ được đánh dấu là nhiệm vụ
+chuẩn và được dùng để đánh giá sáu thuật toán. Các lớp raster, nhiệm vụ, cấu hình,
+seed sinh dữ liệu, siêu dữ liệu của từng bản đồ, ảnh minh họa, kết quả thuật toán,
+danh sách kiểm tra tính toàn vẹn và quy trình đánh giá có thể đọc bằng máy được phát hành
 cùng nhau. Cách tổ chức này phù hợp với mục tiêu chung là làm cho dữ liệu nghiên
-cứu dễ tìm và dễ tái sử dụng nhờ metadata rõ ràng và quy trình xử lý được mô
+cứu dễ tìm và dễ tái sử dụng nhờ siêu dữ liệu rõ ràng và quy trình xử lý được mô
 tả\cite{fair}.
 
 Bộ dữ liệu có thể được dùng để so sánh có kiểm soát các phương pháp điều hướng
 giữa các mức độ khó địa hình ghép cặp, đánh giá hàm heuristic và chi phí cạnh có
 xét địa hình, nghiên cứu độ ổn định của thuật toán ngẫu nhiên dưới ngân sách cố định, hoặc
-phát triển bộ đọc dữ liệu và mô hình học khả năng di chuyển. Đầu ra benchmark
-được cung cấp dưới dạng phép tính tham chiếu và kiểm tra kỹ thuật về tính khả
+phát triển chương trình đọc dữ liệu và mô hình học khả năng đi qua địa hình.
+Kết quả đánh giá chuẩn được cung cấp để làm mốc tham chiếu và kiểm tra tính khả
 thi của đường đi; chúng không nhằm tạo ra một bảng xếp hạng thuật toán có giá trị
 phổ quát.
 
@@ -260,16 +260,16 @@ phổ quát.
 
 \subsection{Thiết kế tính toán và quy ước không gian}
 
-Bộ dữ liệu được sinh bằng Python 3.9.6 với NumPy 2.0.2 và SciPy
-1.13.1\cite{numpy,scipy}. Môi trường tham chiếu còn cố định Matplotlib 3.9.4 và
-Pillow 11.3.0 để kết xuất ảnh. Bản phát hành này được sinh, kết xuất ảnh và
-chạy benchmark trên MacBook Pro (mã máy Mac16,1) dùng chip Apple M4 với 10 lõi CPU
+Mã nguồn tạo dữ liệu dùng Python 3.9.6, NumPy 2.0.2 và SciPy
+1.13.1\cite{numpy,scipy}. Matplotlib 3.9.4 và Pillow 11.3.0 được dùng để tạo
+ảnh. Dữ liệu, hình ảnh và kết quả đánh giá trong bản phát hành này được tạo trên
+MacBook Pro (mã máy Mac16,1) dùng chip Apple M4 với 10 lõi CPU
 (4 lõi hiệu năng và 6 lõi tiết kiệm điện), bộ nhớ hợp nhất 16 GB và macOS
-26.5.2. Quá trình sinh dữ liệu dùng tối đa sáu tiến trình xử lý; benchmark dùng
-ba tiến trình xử lý. Đây là cấu hình tạo bản phát hành, không phải yêu cầu phần cứng tối
-thiểu để đọc dữ liệu. Mỗi bản đồ là raster vuông $128\times128$ ô với kích
+26.5.2. Quá trình sinh dữ liệu dùng tối đa sáu tiến trình; quá trình đánh giá
+dùng ba tiến trình. Đây là cấu hình tạo bản phát hành, không phải yêu cầu phần
+cứng tối thiểu để đọc dữ liệu. Mỗi bản đồ là lưới vuông $128\times128$ ô với kích
 thước ô 0,25 m, tương ứng vùng lấy mẫu danh nghĩa $32\times32$ m. Mảng
-raster được lưu theo \texttt{array[y][x]}, trong khi điểm đầu--cuối nhiệm vụ
+raster được lưu theo \texttt{array[y][x]}, trong khi điểm đầu--đích của nhiệm vụ
 được lưu theo \texttt{[x,y]}. Một ô lưới được đổi sang tọa độ mét bằng
 \begin{equation}
   X=0.25x, \qquad Y=0.25y, \qquad Z=z(y,x),
@@ -283,25 +283,25 @@ $i\in\{1,\ldots,334\}$, seed gốc là
 \begin{equation}
   s_{f,i}=7300+1{,}000{,}003f+10{,}007(i-1).
 \end{equation}
-Nếu một hiện thực không thỏa toàn bộ ràng buộc chấp nhận, chương trình thực
-hiện tối đa mười lần thử xác định; lần thử $a$ dùng
-$s_{f,i}+104{,}729a$. Seed được chấp nhận, seed nhiệm vụ, cấu hình và các tham
-số đã hiện thực hóa được lưu trong từng tệp bản đồ.
+Nếu mẫu tạo ra không thỏa các điều kiện chấp nhận, chương trình thử lại tối đa
+mười lần theo một thứ tự cố định; lần thử $a$ dùng $s_{f,i}+104{,}729a$. Tệp
+bản đồ lưu seed được chọn, seed dùng để tạo nhiệm vụ, cấu hình và giá trị thực
+tế của các tham số ngẫu nhiên.
 
 \subsection{Các họ địa hình gốc}
 
-Mọi họ địa hình đều là trường độ cao đơn trị phủ toàn bộ lưới; vùng bị chặn vẫn
-có giá trị địa hình chứ không phải ô thiếu dữ liệu. Trường ngẫu nhiên tương quan
+Trong cả năm họ địa hình, mỗi ô đều có đúng một giá trị độ cao; ô bị chặn vẫn
+có độ cao chứ không phải là ô thiếu dữ liệu. Trường ngẫu nhiên có tương quan
 được tạo bằng cách lọc Gaussian một trường nhiễu có phân phối chuẩn rồi chuẩn
-hóa phương sai. Các đặc trưng elip giải tích sau đó được đặt với vị trí, trục,
-hướng và biên độ lấy từ seed. Cùng seed, cấu hình, phiên bản mã nguồn và các
+hóa phương sai. Sau đó, chương trình thêm các dạng địa hình hình elip với vị
+trí, bán trục, hướng và biên độ lấy từ seed. Cùng seed, cấu hình, phiên bản mã nguồn và các
 phiên bản thư viện sẽ tái tạo đúng cùng một bề mặt. Năm họ trong bản phát hành
-sử dụng các trường ngẫu nhiên tương quan đa thang kết hợp với các phần tử hình
-học giải tích.
+sử dụng trường ngẫu nhiên ở nhiều thang khác nhau kết hợp với các dạng địa hình
+được mô tả bằng công thức.
 
-Gọi $\mathcal{G}_{\sigma}$ là một mảng mẫu chuẩn tắc độc lập sau khi lọc
-Gaussian với độ lệch chuẩn $\sigma$ ô, trừ trung bình mẫu và chia cho độ lệch
-chuẩn mẫu. Phép lọc dùng biên phản xạ. Với \texttt{rolling},
+Gọi $\mathcal{G}_{\sigma}$ là một mảng nhiễu chuẩn độc lập đã được lọc Gaussian
+với độ lệch chuẩn $\sigma$ ô, sau đó trừ trung bình và chia cho độ lệch chuẩn
+của mảng. Phép lọc dùng điều kiện biên phản xạ. Với \texttt{rolling},
 \texttt{mountain} và \texttt{rugged}, nền ngẫu nhiên là
 $\beta_f\mathcal{G}_{L/7}+0.42\beta_f\mathcal{G}_{L/18}$, trong đó $L=128$ là
 chiều rộng lưới. Tâm đồi được lấy từ $U(-0.36E,0.36E)^2$, với $E=31{,}75$ m là
@@ -319,7 +319,7 @@ Bảng~\ref{tab:family-parameters} liệt kê các hằng số riêng theo họ.
 
 \begin{table}[htbp]
   \centering
-  \caption{Hằng số profile gốc của ba họ địa hình đa đặc trưng. Số lượng là cố
+  \caption{Các hằng số của ba họ địa hình có nhiều loại đặc trưng. Số lượng là cố
   định trong từng họ; vị trí, hướng, bán trục và biên độ tuân theo các phân phối
   nêu trong phần văn bản. Mọi hằng số biên độ đều có đơn vị mét.}
   \label{tab:family-parameters}
@@ -357,20 +357,19 @@ năm họ được lọc Gaussian với $\sigma=0{,}55$ ô rồi dịch giá tr�
 
 \subsection{Xây dựng độ khó ghép cặp}
 
-Với mỗi bề mặt gốc, trường chi tiết cục bộ riêng theo họ dùng bộ sinh có seed
-bằng phép XOR theo bit giữa seed đã hiện thực hóa và \texttt{0x5F3759DF}.
-Một trường chuẩn tắc được
-lọc Gaussian với tương quan $\sigma_f$ rồi chia cho độ lệch chuẩn mẫu. Độc lập
-với nó, một trường $U(0,1)$ được lọc với $\sigma=L/12$; các giá trị dưới phân vị
-$\rho_f$ bị loại, phần còn lại được chuẩn hóa theo cực đại rồi lọc thêm một lần
+Với mỗi bề mặt gốc, trường chi tiết cục bộ riêng theo họ dùng seed bằng phép XOR
+theo bit giữa seed của lần thử và \texttt{0x5F3759DF}. Một mảng nhiễu chuẩn được
+lọc Gaussian với độ lệch chuẩn $\sigma_f$ rồi chuẩn hóa. Độc lập với mảng này,
+một mảng nhiễu đều $U(0,1)$ được lọc với $\sigma=L/12$; các giá trị dưới phân vị
+$\rho_f$ bị loại, phần còn lại được chia cho giá trị lớn nhất rồi lọc thêm một lần
 với $\sigma=1{,}2$. Tích của hai trường là $\eta_f$.
 Bảng~\ref{tab:detail-parameters} nêu toàn bộ giá trị riêng theo họ.
 
 \begin{table}[htbp]
   \centering
   \caption{Tham số trường chi tiết cục bộ và biên độ phụ thuộc độ khó. $s_f$ là
-  hệ số cường độ, $m_f$ là giới hạn biên độ và $\rho_f$ là phân vị kích hoạt của
-  hàm bao.}
+  hệ số cường độ, $m_f$ là giới hạn biên độ và $\rho_f$ là phân vị dùng để tạo
+  mặt nạ trọng số.}
   \label{tab:detail-parameters}
   \small
   \begin{tabular}{lcccc}
@@ -390,33 +389,32 @@ Bề mặt ứng viên cho độ khó được tạo theo
 \begin{equation}
   z_d(x,y)=q z_0(x,y)+\alpha_f(q)\,\eta_f(x,y),
 \end{equation}
-trong đó $z_0$ là hiện thực gốc và quy tắc biên độ chi tiết đầy đủ là
+trong đó $z_0$ là bề mặt gốc và biên độ của thành phần chi tiết được tính bằng
 \begin{equation}
   \alpha_f(q)=\min\!\left\{s_f\left[0.010q+
   0.060\max(0,q-0.75)^{1.24}\right],\ m_f\right\}.
 \end{equation}
-Với khoảng độ khó $[q_{\min},q_{\max}]$, đúng 34 giá trị được đánh giá không
-phải là mẫu ngẫu nhiên mà được xác định bởi
+Trong mỗi khoảng độ khó $[q_{\min},q_{\max}]$, chương trình đánh giá đúng 34
+giá trị cố định theo công thức
 \begin{equation}
   q_k=q_{\min}\left(\frac{q_{\max}}{q_{\min}}\right)^{k/33},
   \qquad k=0,\ldots,33,
 \end{equation}
-chính là định nghĩa dùng bởi \texttt{numpy.geomspace}. Khoảng chung là
+đúng như hàm \texttt{numpy.geomspace}. Các khoảng chung là
 0,18--1,05, 0,48--2,40 và 0,90--4,80 cho Dễ, Trung bình và
 Khó. Plateau dùng 0,18--1,25, 1,20--3,20 và 2,80--6,00 vì mặt trên phẳng của
 khối cao nguyên vẫn có thể là tư thế robot hợp lệ ngay cả khi cạnh bao quanh không thể đi
 qua. Nếu $q<0.62$, ứng viên còn được lọc với $\sigma=1.15(0.62-q)$ ô. Giá trị
 nhỏ nhất được dịch về 0 và độ cao được làm tròn sáu chữ số thập phân trước khi
-tính mọi lớp dẫn xuất và metric chấp nhận. Trường lưu
+tính các lớp được suy ra và các chỉ số chấp nhận. Trường
 \texttt{relief\_severity} chính là hệ số $q$ đã chọn, không phải khoảng
 max--min độ cao thực tế.
 
 Việc chọn ứng viên dựa trên lưới va chạm đã xét robot, được mô tả bên dưới.
 Bảng~\ref{tab:difficulty-acceptance} trình bày toàn bộ miền chấp nhận và ngưỡng
 mật độ biên. Trong mỗi bộ ba được chấp nhận, hệ số $q$ tăng nghiêm ngặt và tỷ
-lệ vùng điều hướng được giảm trên 0,01 tại mỗi lần
-chuyển độ khó. Các tổ hợp ứng viên được xếp theo khoảng cách đến tỷ lệ điều
-hướng mục tiêu; chương trình xét tối đa 12 tổ hợp đứng đầu và giữ tổ hợp có
+lệ ô đi được giảm hơn 0,01 sau mỗi lần tăng độ khó. Các tổ hợp ứng viên được xếp
+theo độ lệch so với tỷ lệ ô đi được mục tiêu; chương trình xét tối đa 12 tổ hợp đầu và giữ tổ hợp có
 điểm thấp nhất trong số các tổ hợp tạo được toàn bộ nhiệm vụ dùng chung.
 
 \begin{table}[htbp]
@@ -430,7 +428,7 @@ hướng mục tiêu; chương trình xét tối đa 12 tổ hợp đứng đầ
   \begin{tabular}{llccc}
     \toprule
     Phạm vi & Độ khó & $q_{\min}$--$q_{\max}$ &
-    \shortstack{Tỷ lệ\\điều hướng} & Mục tiêu \\
+    \shortstack{Tỷ lệ ô\\đi được} & Mục tiêu \\
     \midrule
     Chung   & Dễ          & 0,18--1,05 & 0,72--0,94 & 0,84 \\
     Chung   & Trung bình  & 0,48--2,40 & 0,54--0,76 & 0,65 \\
@@ -460,14 +458,15 @@ hướng mục tiêu; chương trình xét tối đa 12 tổ hợp đứng đầ
 
 Với lưới va chạm $H\times W$ ký hiệu $G$, đặt
 $F=\{(x,y):G(y,x)=0\}$ và gọi $L_F$ là thành phần liên thông lớn nhất theo đúng
-đồ thị chuyển động được định nghĩa bên dưới. Các metric được phát hành là
+đồ thị chuyển động được định nghĩa bên dưới. Ba chỉ số được lưu là
 \begin{equation}
   \phi=\frac{|F|}{HW},\qquad
   \lambda=\frac{|L_F|}{HW},\qquad
   \psi=\frac{|L_F|}{|F|}=\frac{\lambda}{\phi},
 \end{equation}
-trong đó $\phi$ là tỷ lệ vùng điều hướng, $\lambda$ là tỷ lệ thành phần lớn
-nhất và $\psi$ là tỷ trọng thành phần lớn nhất trong vùng điều hướng. Mật độ
+trong đó $\phi$ là tỷ lệ ô đi được trên toàn bản đồ, $\lambda$ là tỷ lệ ô thuộc
+thành phần liên thông lớn nhất trên toàn bản đồ, còn $\psi$ là tỷ lệ ô đi được
+thuộc thành phần đó. Mật độ
 biên va chạm chỉ đếm cặp ô kề ngang và dọc:
 \begin{equation}
   \delta_B=\frac{
@@ -476,8 +475,8 @@ biên va chạm chỉ đếm cặp ô kề ngang và dọc:
   {H(W-1)+(H-1)W}.
 \end{equation}
 Dấu ngoặc vuông là hàm chỉ thị. Phép tính nhanh thành phần nhị phân tám hướng
-cho $\widetilde\lambda$ để sàng lọc ban đầu; ứng viên được chấp nhận sau đó được
-tính lại bằng đồ thị chuyển động đầy đủ. Với miền tỷ lệ điều hướng $[\ell,u]$,
+cho $\widetilde\lambda$ để lọc nhanh ban đầu; các ứng viên còn lại sau đó được
+tính lại bằng đồ thị chuyển động đầy đủ. Với khoảng tỷ lệ ô đi được $[\ell,u]$,
 mục tiêu $t$ và tỷ lệ thành phần tối thiểu $\lambda_{\min}$, điểm ứng viên chính
 xác là
 \begin{equation}
@@ -486,40 +485,40 @@ xác là
 \end{equation}
 trong đó $[x]_+=\max(0,x)$. Ứng viên được xếp theo $S$, lọc bằng mọi ngưỡng
 trong Bảng~\ref{tab:difficulty-acceptance}, rồi giữ sáu ứng viên hợp lệ đầu tiên
-cho mỗi độ khó. Trước phép tính đồ thị đầy đủ, bước sàng lọc nhanh loại ứng viên
+cho mỗi độ khó. Trước phép tính đồ thị đầy đủ, bước lọc nhanh loại ứng viên
 có $\widetilde\lambda<0.95\lambda_{\min}$; ngưỡng $\lambda_{\min}$ chính xác
 vẫn được áp dụng sau khi tính lại thành phần liên thông. Điểm của một bộ ba là
 $\sum_d S_d$.
 
 \subsection{Phân tích địa hình có xét robot}
 
-Robot tham chiếu được biểu diễn bằng phạm vi chiếm chỗ hình tròn nằm ngang bán
-kính 0,45 m. Với kích thước ô 0,25 m, bán kính số hóa là
+Robot tham chiếu có vùng chiếm chỗ (footprint) hình tròn với bán kính 0,45 m
+trên mặt phẳng ngang. Với kích thước ô 0,25 m, bán kính trên lưới là
 \begin{equation}
   R_c=\left\lceil\frac{0.45}{0.25}\right\rceil=2,
   \qquad
   \mathcal{D}=\{(i,j)\in\mathbb{Z}^2:i^2+j^2\leq R_c^2\}.
 \end{equation}
-Mặt nạ vì vậy có đúng 13 độ lệch trong cửa sổ $5\times5$: tâm, bốn độ lệch
-trên trục ở bán kính một, bốn độ lệch chéo $(\pm1,\pm1)$ và bốn độ lệch trên
-trục ở bán kính hai. Phép làm tròn lên này là bảo thủ: các điểm ngoài cùng trên
+Mặt nạ vì vậy có đúng 13 ô trong cửa sổ $5\times5$: ô tâm, bốn ô cách tâm một
+ô theo phương ngang hoặc dọc, bốn ô chéo $(\pm1,\pm1)$ và bốn ô cách tâm hai ô
+theo phương ngang hoặc dọc. Cách làm tròn lên này tạo thêm biên an toàn: các điểm ngoài cùng trên
 trục cách tâm 0,50 m dù bán kính danh nghĩa là 0,45 m. Cấu hình không được suy
 ra từ một robot vật lý cụ thể. Bốn ngưỡng gồm bán kính 0,45 m, độ dốc 28 độ, độ nhám 0,10 m và bậc
 cao 0,65 m được cố định trước khi sinh bản phát hành để định nghĩa một robot
 tham chiếu và tạo được cả vùng đi được lẫn vùng bị chặn trên cả năm họ địa
 hình; chúng không phải giới hạn cơ học phổ quát của robot mặt đất. Đường kính
 danh nghĩa là 0,90 m. Lớp độ cao thô được phát hành để người dùng tính lại mọi
-lớp có xét phạm vi chiếm chỗ
+lớp có xét vùng chiếm chỗ
 với hình học và ngưỡng phù hợp cho robot khác. Một mặt phẳng bình phương tối
 thiểu được khớp trên cửa sổ tròn tại
-mỗi vị trí tâm robot ứng viên. Tung độ gốc của mặt phẳng được lưu dưới tên
-\texttt{support\_elevation}; độ lớn gradient ngang được quy đổi sang độ và lưu
+mỗi vị trí tâm robot ứng viên. Giá trị của mặt phẳng tại tâm được lưu dưới tên
+\texttt{support\_elevation}; độ lớn của gradient ngang được đổi sang độ và lưu
 trong trường
 \texttt{footprint\_slope\_degrees}. Độ nhám là căn bậc hai của trung bình bình phương
 phần dư độ cao so với mặt phẳng. Chiều cao bậc cục bộ là giá trị lớn nhất của
 chênh lệch độ cao tám hướng tại các ô trung tâm nằm trong mặt nạ số hóa. Một lớp độ dốc từ
 gradient điểm sau khi làm trơn nhẹ cũng được lưu để phân tích mô tả, nhưng
-không được dùng để xác định lưới khả năng di chuyển hoặc chi phí điều hướng.
+không được dùng để xác định lưới ô đi được hoặc chi phí đường đi.
 
 Cụ thể, gọi $\mathcal{W}=\{(u_i,v_i,z_i)\}_{i=1}^{N}$ là các mẫu trong cửa sổ
 tròn, trong đó $(u_i,v_i)$ là độ lệch theo mét so với tâm cửa sổ.
@@ -530,7 +529,7 @@ $\widehat z_i=\bar z+a u_i+b v_i$ được tính bởi
   a=\frac{\sum_i u_i z_i}{\sum_i u_i^2},\qquad
   b=\frac{\sum_i v_i z_i}{\sum_i v_i^2}.
 \end{equation}
-Độ cao mặt đỡ tại tâm là $\bar z$; độ dốc theo phạm vi chiếm chỗ và độ nhám RMS
+Độ cao của mặt phẳng đỡ tại tâm là $\bar z$; độ dốc trên vùng chiếm chỗ và độ nhám RMS
 lần lượt là
 \begin{equation}
   \theta=\frac{180}{\pi}\arctan\!\left(\sqrt{a^2+b^2}\right),\qquad
@@ -539,13 +538,13 @@ lần lượt là
 \end{equation}
 Trong cài đặt, các tổng cục bộ của $z$, $z^2$, $uz$ và $vz$ được đánh giá đồng
 thời tại mọi tâm ô bằng tích chập hai chiều của
-\texttt{scipy.ndimage}; gradient điểm, lọc Gaussian và cực đại cục bộ cũng được
+\texttt{scipy.ndimage}; gradient tại từng ô, lọc Gaussian và giá trị lớn nhất cục bộ cũng được
 tính trên toàn mảng NumPy. Cách vector hóa này tránh vòng lặp Python qua từng
 ô khi phân tích 82.083.840 vị trí của 5.010 bản đồ. Chiều cao bậc dùng tám mảng
-láng giềng đã dịch và một bộ lọc cực đại theo phạm vi chiếm chỗ.
+láng giềng đã dịch và một bộ lọc lấy giá trị lớn nhất trên vùng chiếm chỗ.
 
-Với độ dốc $\theta$, độ nhám $r$ và chiều cao bậc $h$, chi phí khả năng di
-chuyển không thứ nguyên là
+Với độ dốc $\theta$, độ nhám $r$ và chiều cao bậc $h$, chi phí đi qua địa hình
+không có đơn vị được tính bằng
 \begin{equation}
   C_{\mathrm{trav}}=
   0.45\frac{\theta}{28^\circ}+
@@ -559,10 +558,11 @@ xác là
   (h>0.65\ \mathrm{m})\ \lor\ (C_{\mathrm{trav}}\geq1).
 \end{equation}
 Tư thế đi được khi và chỉ khi $B$ sai và tâm không thuộc dải biên. Cụ thể, tâm
-bị chặn khi $x<R_c$, $x\geq W-R_c$, $y<R_c$ hoặc $y\geq H-R_c$. Tích chập khớp
-mặt phẳng dùng đầu vào phản xạ tại biên mảng; các mảng dịch và phép lấy cực đại
-theo footprint để tính bậc dùng phần mở rộng bằng giá trị biên gần nhất. Dải hai
-ô tường minh sau đó ghi đè các giá trị biên trung gian trong lưới va chạm cuối.
+bị chặn khi $x<R_c$, $x\geq W-R_c$, $y<R_c$ hoặc $y\geq H-R_c$. Mặt phẳng
+được khớp bằng phép tích chập với dữ liệu phản xạ ở biên mảng; khi
+tính chiều cao bậc, các mảng dịch và phép lấy giá trị lớn nhất dùng giá trị biên
+gần nhất để mở rộng mảng. Cuối cùng, chương trình đánh dấu trực tiếp dải hai ô
+ở mép bản đồ là vùng bị chặn.
 Không cần làm giãn vật cản thêm để tái tạo cấu hình tham chiếu; nếu thêm biên an
 toàn hoặc đổi hình học robot, người dùng đang tạo một cấu hình điều hướng khác.
 
@@ -581,128 +581,129 @@ cạnh chung là
 \end{equation}
 Hàm mục tiêu toàn tuyến là tổng $c$ trên mọi bước chuyển. Quy tắc hợp lệ của
 chuyển động được dùng chung khi kiểm tra liên thông, chạy sáu thuật toán và kiểm
-tra đường đi. Chi phí $c$ được dùng để xếp hạng cặp Start--Goal, tối ưu Dijkstra
+tra đường đi. Chi phí $c$ được dùng để xếp hạng cặp điểm đầu--đích, tối ưu Dijkstra
 và A*, gán trọng số cạnh PRM, chọn và nối lại nhánh trong RRT*, đồng thời báo cáo
 chi phí cuối cùng cho mọi đường thành công. BFS chỉ tối thiểu hóa số bước;
 RRT-Connect mở rộng cây theo khoảng cách Euclid và các kiểm tra va chạm/độ dốc,
 nên $c$ chỉ được tính sau đó để báo cáo đường tìm được.
 
-\subsection{Xây dựng nhiệm vụ Start--Goal}
+\subsection{Xây dựng nhiệm vụ điểm đầu--đích (Start--Goal)}
 
-Nhiệm vụ được chọn trên thành viên Khó của mỗi bộ ba rồi sao chép sang thành
-viên Dễ và Trung bình. Điểm đầu--cuối ứng viên nằm trong thành phần liên thông
+Nhiệm vụ được chọn trên bản đồ Khó của mỗi bộ ba rồi sao chép sang bản đồ
+Dễ và Trung bình. Điểm đầu và điểm đích ứng viên nằm trong thành phần liên thông
 hợp lệ lớn nhất; thành phần này được tìm bằng phép duyệt BFS dùng hàng đợi trên
 đồ thị tám hướng với đúng quy tắc chuyển động đã công bố. Các điểm ứng viên
 thông thường cách biên ít nhất 1,5 m, tương đương sáu ô. Tối đa 30 ô gốc được
-chọn: dùng toàn bộ khi có không quá 30 ứng viên, nếu không thì lấy đúng 30 ô
-không hoàn lại theo seed. Thuật toán Dijkstra\cite{dijkstra} được chạy từ từng ô gốc
+chọn: dùng toàn bộ khi có không quá 30 ứng viên; nếu có nhiều hơn, chương trình
+lấy ngẫu nhiên đúng 30 ô không lặp bằng seed đã định. Thuật toán Dijkstra\cite{dijkstra} được chạy từ từng ô gốc
 để tính khoảng cách có trọng số đến các ứng viên khác; các khoảng cách này được
-dùng để xếp hạng các cặp đầu--cuối theo hàm mục tiêu chung.
+dùng để xếp hạng các cặp điểm đầu--đích theo hàm mục tiêu chung.
 
-Với giao thức mười nhiệm vụ, ba cặp được chọn từ khoảng phân vị khoảng cách
+Theo quy trình chọn mười nhiệm vụ, ba cặp được chọn từ khoảng phân vị khoảng cách
 0,20--0,42, bốn cặp từ 0,45--0,72 và ba cặp từ 0,75--0,98; chúng lần lượt nhận
 nhãn \texttt{short}, \texttt{medium} và \texttt{long}. Nhiệm vụ dài nhất được
-đánh dấu là nhiệm vụ dùng để trực quan hóa và làm benchmark chuẩn. Một bộ ba chỉ được chấp nhận
+đánh dấu là nhiệm vụ chuẩn để minh họa và đánh giá. Một bộ ba chỉ được chấp nhận
 nếu mọi cặp đã chọn vẫn liên thông theo mô hình chuyển động công bố ở cả ba mức
 độ khó.
 
-Để xử lý chính xác trường hợp trùng và thiếu, cặp đầu--cuối được lưu dưới dạng
+Để xử lý chính xác trường hợp trùng và thiếu, cặp điểm đầu--đích được lưu dưới dạng
 cặp không thứ tự rồi xếp trước hết theo khoảng cách có trọng số, sau đó theo thứ
 tự từ điển của hàng và cột. Với danh sách có độ dài $n$ và khoảng phân vị
-$[p_l,p_u]$, lát bắt đầu tại $\min(n-1,\lfloor p_l(n-1)\rfloor)$ và kết thúc
+$[p_l,p_u]$, gọi đoạn danh sách tương ứng là $\mathcal{B}$. Đoạn này bắt đầu tại
+$\min(n-1,\lfloor p_l(n-1)\rfloor)$ và kết thúc
 ngay trước $\min(n,\max(i_l+1,\lfloor p_u n\rfloor))$, trong đó $i_l$ là chỉ
-số bắt đầu. Với một dải có chỉ tiêu $m$, thuật toán lấy $m$ vị trí bên trong
-cách đều từ 0 đến $|\mathrm{dải}|-1$, làm tròn theo quy tắc số chẵn gần nhất
-của Python/NumPy rồi quét vòng về phía trước đến cặp chưa dùng đầu tiên. Nếu lát phân vị có ít hơn $m$ ứng viên,
-toàn bộ danh sách đã xếp hạng thay thế lát đó. Nếu ba dải vẫn cung cấp ít hơn
+số bắt đầu. Với một khoảng cần chọn $m$ cặp, thuật toán lấy $m$ vị trí cách đều
+từ 0 đến $|\mathcal{B}|-1$, làm tròn theo quy tắc số chẵn gần nhất của
+Python/NumPy rồi duyệt vòng về phía trước đến cặp chưa dùng đầu tiên. Nếu đoạn
+phân vị có ít hơn $m$ ứng viên, toàn bộ danh sách đã xếp hạng sẽ thay thế đoạn
+đó. Nếu ba khoảng vẫn cung cấp ít hơn
 mười cặp duy nhất, các cặp chưa dùng được lấy từ toàn bộ danh sách theo khoảng
 cách giảm dần và gán nhãn \texttt{long}. Lần sinh hiện tại thất bại nếu vẫn
-không tạo được mười cặp khác nhau. Nếu có ít hơn hai ô đầu--cuối thỏa khoảng
-cách biên, toàn bộ thành phần lớn nhất được dùng; nếu nó cũng có ít hơn hai ô,
+không tạo được mười cặp khác nhau. Nếu có ít hơn hai ô thỏa điều kiện cách biên,
+toàn bộ thành phần lớn nhất được dùng; nếu nó cũng có ít hơn hai ô,
 lần sinh thất bại.
 
-\subsection{Thuật toán sinh bộ ba đầu cuối}
+\subsection{Thuật toán tạo bộ ba hoàn chỉnh}
 
 \noindent\textbf{Thuật toán 1: Sinh một nhóm địa hình ghép cặp.}
 Với họ $f$ và chỉ số trong họ $i$:
 \begin{enumerate}
-  \item Tính $s_{f,i}$ và với lần thử $a=0,\ldots,9$, đặt seed hiện thực hóa là
+  \item Tính $s_{f,i}$ và với lần thử $a=0,\ldots,9$, đặt seed của lần thử là
   $s_{f,i}+104{,}729a$. Sinh một bề mặt gốc $z_0$ và một trường chi tiết
   $\eta_f$ từ seed này.
   \item Với mỗi độ khó, đánh giá đủ 34 giá trị $q_k$. Với từng giá trị, tạo
-  $z_d$, thực hiện lọc có điều kiện và làm tròn sáu chữ số, tính mọi lớp/metric
-  có xét footprint, tính $S$, rồi giữ sáu ứng viên hợp lệ đầu tiên sau khi xếp
+  $z_d$, thực hiện lọc có điều kiện và làm tròn sáu chữ số, tính các lớp và chỉ số
+  có xét vùng chiếm chỗ, tính $S$, rồi giữ sáu ứng viên hợp lệ đầu tiên sau khi xếp
   theo $S$.
-  \item Liệt kê tích Descartes của ba danh sách ứng viên. Loại tổ hợp nếu không
+  \item Liệt kê mọi tổ hợp có thể tạo từ ba danh sách ứng viên. Loại tổ hợp nếu không
   thỏa $q_{\mathrm{easy}}<q_{\mathrm{medium}}<q_{\mathrm{hard}}$ và
   $\phi_d-\phi_{d+1}>0.01$. Xếp các tổ hợp còn lại theo $\sum_d S_d$.
-  \item Với tối đa 12 tổ hợp đầu, tạo mười nhiệm vụ trên thành viên Khó bằng
+  \item Với tối đa 12 tổ hợp đầu, tạo mười nhiệm vụ trên bản đồ Khó bằng
   seed thu được từ phép XOR theo bit giữa $(s_{f,i}+104{,}729a)$ và
   \texttt{0x6A09E667}, theo các quy tắc xác định ở trên. Loại tổ hợp nếu
-  đầu--cuối của bất kỳ nhiệm vụ nào mất liên
-  thông trong một trong ba thành viên.
-  \item Trả về tổ hợp hợp lệ đầu tiên và tuần tự hóa ba bản đồ với cùng các
+  điểm đầu hoặc điểm đích của bất kỳ nhiệm vụ nào mất liên
+  thông trong một trong ba bản đồ.
+  \item Trả về tổ hợp hợp lệ đầu tiên và lưu ba bản đồ với cùng các
   nhiệm vụ. Nếu không có tổ hợp hợp lệ, chuyển sang lần thử $a+1$; báo lỗi sinh
   dữ liệu sau mười lần thử không thành công.
 \end{enumerate}
 
-\subsection{Benchmark thuật toán tham chiếu}
+\subsection{Đánh giá các thuật toán tham chiếu}
 
-Bản phát hành chứa benchmark theo giao thức cố định cho tìm kiếm theo chiều
+Bản phát hành cung cấp kết quả đánh giá theo một quy trình cố định cho tìm kiếm theo chiều
 rộng (BFS),
 Dijkstra\cite{dijkstra}, A*\cite{astar}, probabilistic roadmaps (PRM)
-\cite{prm}, RRT-Connect\cite{rrtconnect} và RRT*\cite{rrtstar}. Benchmark đánh
-giá nhiệm vụ dài chuẩn trên toàn bộ 5.010 bản đồ. Phạm vi này được cố định trước
+\cite{prm}, RRT-Connect\cite{rrtconnect} và RRT*\cite{rrtstar}. Phép đánh giá dùng
+nhiệm vụ dài chuẩn trên toàn bộ 5.010 bản đồ. Phạm vi này được cố định trước
 khi chạy để có một nhiệm vụ dài được định nghĩa thống nhất cho mỗi bản đồ và
 bao phủ đầy đủ ba mức độ khó ghép
-cặp dưới cùng một giao thức tính toán. Đây là benchmark tham chiếu để kiểm định,
+cặp theo cùng một quy trình tính toán. Đây là phép đánh giá tham chiếu để kiểm định,
 không phải phép đánh giá toàn diện cả mười nhiệm vụ. Toàn bộ mười nhiệm vụ vẫn
 được phát hành và chương trình dòng lệnh hỗ trợ chạy tất cả nhiệm vụ mà không
 cần sinh lại địa hình; kết quả trong bài không được khái quát cho chín nhiệm vụ
 còn lại. BFS là mốc tham chiếu không trọng số, tối thiểu hóa số bước chuyển;
-Dijkstra và A* tối ưu hàm mục tiêu có trọng số chung. Các thuật toán tất định
-chạy một lần trên mỗi bản đồ. PRM, RRT-Connect và RRT* chạy năm seed xác định;
+Dijkstra và A* tối ưu hàm mục tiêu có trọng số chung. Các thuật toán không ngẫu nhiên
+chạy một lần trên mỗi bản đồ. PRM, RRT-Connect và RRT* chạy với năm seed cố định;
 hệ thống không tự động chạy thêm ngoài năm seed đã công bố.
 
 PRM lấy mẫu 500 ô tự do và xét 12 láng giềng gần nhất cho mỗi nút. RRT-Connect
 có ngân sách tối đa 5.000 vòng lặp, bước mở rộng bốn ô và dừng khi hai cây kết
 nối hoặc khi hết ngân sách. RRT* chạy đủ 6.000 vòng lặp, dùng bước mở rộng ba ô,
 bán kính nối lại bảy ô và xác suất lấy mẫu Goal 0,08, sau đó trả về kết nối Goal
-hợp lệ có chi phí nhỏ nhất đã tìm thấy. Cạnh của các thuật toán lấy mẫu được
-chuyển thành chuỗi ô
-Bresenham tám hướng đối xứng và chỉ được chấp nhận khi mọi bước raster hóa vượt
+hợp lệ có chi phí nhỏ nhất đã tìm thấy. Mỗi cạnh của các thuật toán lấy mẫu được
+chuyển thành chuỗi ô bằng thuật toán Bresenham tám hướng đối xứng và chỉ được
+chấp nhận khi mọi bước trong chuỗi vượt
 qua kiểm tra va chạm, góc và độ dốc chung.
 
 Mỗi lần chạy lưu trạng thái thành công, tính hợp lệ của tuyến, thời gian chạy, chiều dài
 phẳng và ba chiều, chi phí có trọng số, độ cao tăng tích lũy, số ô đường đi và
-số cạnh đã thăm dò. Giao thức tạo 90.180 dòng dữ liệu thô: ba bản ghi từ các
-thuật toán tất định và mười lăm bản ghi ngẫu nhiên trên mỗi bản đồ. Các bảng
+số cạnh đã thăm dò. Quy trình tạo 90.180 dòng dữ liệu chi tiết: ba bản ghi từ các
+thuật toán không ngẫu nhiên và mười lăm bản ghi ngẫu nhiên trên mỗi bản đồ. Các bảng
 tóm tắt trước tiên nhóm năm lần chạy ngẫu nhiên trong từng cặp bản đồ--thuật
 toán rồi mới tổng hợp giữa các bản đồ, tránh xem năm seed trên cùng một địa hình
-là năm mẫu địa hình độc lập. Thời gian chạy được đo khi benchmark chạy song
-song với ba tiến trình và được lưu cùng điều kiện thực thi này.
-Các giá trị thời gian chỉ mô tả lần chạy throughput với ba worker đã hoàn tất;
-chúng không được dùng để xếp hạng planner hoặc suy luận so sánh hiệu năng, vì có
-tải đồng thời và mỗi planner tất định chỉ có một quan sát thời gian trên mỗi bản
-đồ. Một nghiên cứu thời gian nhằm so sánh hiệu năng cần chạy tuần tự, lặp lại
-từng cấu hình và báo cáo thống kê bền vững như trung vị và khoảng tứ phân vị.
+là năm mẫu địa hình độc lập. Thời gian được đo khi ba tiến trình chạy đồng thời
+và được lưu cùng điều kiện thực thi này. Vì vậy, các giá trị thời gian chỉ phản
+ánh lần chạy song song đã thực hiện và không được dùng để xếp hạng hoặc so sánh
+tốc độ giữa các thuật toán. Mỗi thuật toán không ngẫu nhiên cũng chỉ có một phép
+đo trên mỗi bản đồ. Muốn so sánh thời gian chạy, cần chạy tuần tự, lặp lại từng
+cấu hình và báo cáo các thống kê ổn định như trung vị và khoảng tứ phân vị.
 
 \subsection{Tái lập và chuẩn bị kiểm tra tính toàn vẹn}
 
-Sinh dữ liệu, kết xuất ảnh, benchmark, phân tích và kiểm định được triển khai
+Sinh dữ liệu, tạo ảnh, đánh giá thuật toán, phân tích và kiểm định được triển khai
 thành các chương trình dòng lệnh riêng. Môi trường Conda và danh sách đầy đủ
 phiên bản gói Python được cung cấp cùng mã nguồn. Công việc sinh dữ liệu và
-benchmark dùng chữ ký cấu hình xác định và có thể tiếp tục theo bộ ba hoặc theo
+đánh giá thuật toán dùng mã nhận dạng cấu hình cố định và có thể tiếp tục theo bộ ba hoặc theo
 bản đồ hoàn chỉnh. Trình kiểm định cuối cùng kiểm tra cấu trúc cốt lõi, lưới
 \texttt{grid} và \texttt{elevation}, khả năng tái tạo lưới va chạm và
 \texttt{support\_elevation}, quy ước tọa độ, số lượng và liên thông nhiệm vụ,
-điểm đầu--cuối dùng chung và thứ tự độ khó. Tính hợp lệ của đường đi được kiểm
-tra trong quá trình benchmark. Ba danh sách SHA-256 được cung cấp cho toàn bộ
-5.010 tệp bản đồ JSON, 5.010 tệp NPZ và metadata phát hành cốt lõi. Danh mục tệp hoàn chỉnh
+điểm đầu--đích dùng chung và thứ tự độ khó. Tính hợp lệ của đường đi được kiểm
+tra trong quá trình đánh giá. Ba danh sách SHA-256 được cung cấp cho toàn bộ
+5.010 tệp bản đồ JSON, 5.010 tệp NPZ và siêu dữ liệu chính. Danh mục tệp hoàn chỉnh
 ghi đường dẫn tương đối, loại nội dung và kích thước byte.
 
-Hình~\ref{fig:terrain-triplets} minh họa cách cùng một hiện thực địa hình và
-cùng nhiệm vụ Start--Goal được giữ qua ba mức Dễ--Trung bình--Khó trong mỗi bộ
+Hình~\ref{fig:terrain-triplets} minh họa cách cùng một mẫu địa hình và
+cùng nhiệm vụ điểm đầu--đích được giữ qua ba mức Dễ--Trung bình--Khó trong mỗi bộ
 ba ghép cặp.
 
 \begin{figure}[htbp]
@@ -715,9 +716,9 @@ ba ghép cặp.
   }
   \caption{\textbf{Các địa hình do hệ thống sinh ra ở ba mức độ khó ghép cặp.}
   Các cột lần lượt là Dễ, Trung bình và Khó; mỗi hàng là một họ địa hình.
-  Các thành viên trong một hàng dùng chung địa hình gốc và tọa độ Start--Goal.
+  Các bản đồ trong một hàng dùng chung địa hình gốc và tọa độ điểm đầu--đích.
   Vùng xám biểu thị các vị trí mà tâm robot tham chiếu không thể đi qua. Hình
-  được bố cục lại từ 15 ảnh do quy trình của dự án kết xuất; không thay đổi dữ
+  được bố cục lại từ 15 ảnh do chương trình của dự án tạo ra; không thay đổi dữ
   liệu địa hình, vùng bị chặn hoặc tọa độ nhiệm vụ.}
   \label{fig:terrain-triplets}
 \end{figure}
@@ -782,25 +783,24 @@ Mỗi thư mục họ trong \texttt{maps/} có 1.002 tệp JSON: 334 mẫu gốc
 độ khó. Tên tệp theo mẫu
 \path{terrain_<family>_<index>_<difficulty>.json}; ví dụ
 \path{terrain_mountain_001_hard.json}. Định danh dùng chung
-\path{terrain_mountain_001} liên kết ba thành viên Dễ, Trung bình và Khó.
+\path{terrain_mountain_001} liên kết ba bản đồ Dễ, Trung bình và Khó.
 
 \subsection{Nội dung và cấu trúc của tệp bản đồ JSON}
 
-Mỗi tệp JSON là một bản ghi độc lập chứa đầy đủ một địa hình, gồm định danh,
-seed, ma trận
-độ cao thô, mọi lớp phân tích địa hình dẫn xuất, lưới va chạm cuối, mười đối
-tượng nhiệm vụ, quy ước tọa độ và điều hướng, thiết lập sinh dữ liệu, tiêu chí
-chấp nhận độ khó và metadata cấp bản đồ. Mọi lớp raster có kích thước
-$128\times128$. Mảng dùng chỉ số \texttt{[y][x]}, còn điểm đầu--cuối nhiệm vụ
+Mỗi tệp JSON chứa toàn bộ thông tin của một bản đồ, gồm định danh, seed, ma trận
+độ cao thô, các lớp phân tích được tính từ độ cao, lưới va chạm cuối, mười nhiệm
+vụ, quy ước tọa độ và điều hướng, thiết lập sinh dữ liệu, tiêu chí chấp nhận độ
+khó và siêu dữ liệu của bản đồ. Mọi lớp raster có kích thước
+$128\times128$. Mảng dùng chỉ số \texttt{[y][x]}, còn điểm đầu--đích của nhiệm vụ
 dùng \texttt{[x,y]}. Trong lưới va chạm nhị phân, 0 là ô tâm robot hợp lệ và 1
 là ô bị chặn.
 
-Bảng~\ref{tab:raster-fields} tóm tắt các raster chính. Độ cao thô được giữ
+Bảng~\ref{tab:raster-fields} tóm tắt các lớp raster chính. Độ cao thô được giữ
 riêng với \texttt{support\_elevation}: lớp thứ nhất mô tả bề mặt tại ô, còn lớp
-thứ hai là tung độ gốc của mặt phẳng đỡ theo phạm vi chiếm chỗ, được dùng để
+thứ hai là giá trị của mặt phẳng đỡ tại tâm vùng chiếm chỗ, được dùng để
 tính độ dốc cạnh và chi phí đường đi.
 Các mặt nạ nguyên nhân cho phép phân biệt vùng bị chặn do độ dốc, độ nhám,
-chiều cao bậc hoặc chi phí khả năng di chuyển tổng hợp.
+chiều cao bậc hoặc chi phí đi qua địa hình tổng hợp.
 
 \begin{table}[htbp]
   \centering
@@ -813,28 +813,28 @@ chiều cao bậc hoặc chi phí khả năng di chuyển tổng hợp.
     \toprule
     \normalfont Trường & Mã hóa hoặc đơn vị & Ý nghĩa \\
     \midrule
-    elevation & m & Độ cao địa hình đơn trị thô. \\
-    grid & 0/1 & Lưới va chạm cuối đã xét phạm vi chiếm chỗ. \\
+    elevation & m & Độ cao bề mặt tại từng ô. \\
+    grid & 0/1 & Lưới va chạm cuối đã xét vùng chiếm chỗ. \\
     point\_slope\_degrees & độ & Độ dốc gradient của bề mặt làm trơn nhẹ. \\
-    support\_elevation & m & Tung độ gốc mặt phẳng đỡ bình phương tối thiểu. \\
-    footprint\_slope\_degrees & độ & Độ nghiêng của mặt phẳng đỡ trong phạm vi chiếm chỗ. \\
+    support\_elevation & m & Giá trị của mặt phẳng đỡ bình phương tối thiểu tại tâm. \\
+    footprint\_slope\_degrees & độ & Độ nghiêng của mặt phẳng đỡ trên vùng chiếm chỗ. \\
     roughness & m RMS & Biến thiên độ cao còn dư quanh mặt phẳng đỡ. \\
-    step\_height & m & Gián đoạn độ cao kề nhau lớn nhất trong phạm vi chiếm chỗ. \\
-    traversability\_cost & không thứ nguyên & Tổng độ dốc, độ nhám và bậc đã chuẩn hóa. \\
+    step\_height & m & Chênh lệch độ cao kề nhau lớn nhất trong vùng chiếm chỗ. \\
+    traversability\_cost & không thứ nguyên & Tổng có trọng số của độ dốc, độ nhám và chiều cao bậc đã chuẩn hóa. \\
     blocked\_by\_* & 0/1 & Mặt nạ nguyên nhân độ dốc, độ nhám, bậc và chi phí. \\
-    centre\_blocked & 0/1 & Hợp các nguyên nhân trước khi áp đặt biên an toàn. \\
+    centre\_blocked & 0/1 & Hợp của các mặt nạ nguyên nhân trước khi thêm biên an toàn. \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Mỗi đối tượng nhiệm vụ gồm chỉ số, định danh riêng theo độ khó và định danh
-ghép cặp, ô Start và Goal, lớp khoảng cách, khoảng cách có trọng số tham chiếu,
+Mỗi nhiệm vụ gồm chỉ số, định danh riêng theo độ khó và định danh
+ghép cặp, ô đầu và đích, nhóm khoảng cách, khoảng cách có trọng số tham chiếu,
 độ khó tham chiếu và cờ nhiệm vụ chuẩn. Để tiện sử dụng, nhiệm vụ chuẩn còn
 được lặp ở các trường cấp cao \texttt{start}, \texttt{goal},
 \texttt{start\_z} và \texttt{goal\_z}. Từ điển trường đầy đủ, phép đổi tọa độ,
-đơn vị và bộ phân tích cú pháp tối thiểu nằm trong \texttt{SCHEMA.md};
-\texttt{examples/load\_map.py} cung cấp bộ đọc không cần thư viện phụ thuộc bên ngoài với
-các kiểm tra cấu trúc cơ bản.
+đơn vị và cách đọc tệp nằm trong \texttt{SCHEMA.md};
+\texttt{examples/load\_map.py} cung cấp một ví dụ đọc tệp chỉ dùng thư viện
+chuẩn, kèm các kiểm tra cấu trúc cơ bản.
 
 \subsection{Các tệp raster NPZ}
 
@@ -842,76 +842,76 @@ Mỗi bản đồ JSON có một tệp cùng tên gốc trong \texttt{npz/<famil
 chứa 13 trường raster ở Bảng~\ref{tab:raster-fields}, đều có kích thước
 $128\times128$: lớp liên tục dùng \texttt{float32}, còn lưới và mặt nạ nhị phân
 dùng \texttt{uint8}. Tệp không chứa đối tượng pickle và có thể đọc bằng
-\texttt{numpy.load(path, allow\_pickle=False)}. NPZ chỉ là bản dẫn xuất để truy
-cập mảng hiệu quả; JSON vẫn là nguồn chuẩn cho định danh, nhiệm vụ, thiết lập
-sinh và metadata. Giao thức chuyển đổi, đường dẫn, kích thước và mã băm từng tệp
+\texttt{numpy.load(path, allow\_pickle=False)}. NPZ là bản sao được tạo từ JSON
+để truy cập mảng nhanh hơn; JSON vẫn là nguồn chuẩn cho định danh, nhiệm vụ,
+thiết lập sinh và siêu dữ liệu. Quy trình chuyển đổi, đường dẫn, kích thước và mã băm từng tệp
 nằm trong \texttt{npz\_conversion.json}, \texttt{npz\_manifest.csv} và
 \texttt{SHA256SUMS\_NPZ.txt}.
 
-\subsection{Metadata và bản ghi benchmark}
+\subsection{Siêu dữ liệu và kết quả đánh giá}
 
 Tệp \texttt{metadata/dataset\_summary.csv} là chỉ mục bao quát cả năm họ, mỗi bản đồ
-một dòng, chứa định danh, seed, tham số sinh đã hiện thực hóa, đường dẫn dữ liệu
-và metadata cấp bản đồ. \texttt{metadata/task\_summary.csv} có một dòng cho mỗi
+một dòng, chứa định danh, seed, giá trị thực tế của các tham số sinh, đường dẫn dữ liệu
+và siêu dữ liệu của bản đồ. \texttt{metadata/task\_summary.csv} có một dòng cho mỗi
 nhiệm vụ ghép cặp duy nhất, do đó có 16.700 dòng; định nghĩa nhiệm vụ chuẩn vẫn
 nằm trong tệp JSON bản đồ. \texttt{metadata/manifest.json} ghi phạm vi phát hành, cấu
-hình, bố cục ảnh và liên kết benchmark.
+hình, bố cục ảnh và liên kết đến kết quả đánh giá.
 
-Bảng benchmark thô có 90.180 dòng. Các cột định danh địa hình, nhóm ghép cặp,
-nhiệm vụ, thuật toán, lần chạy, seed xác định, ngân sách, cờ thành công và hợp
+Tệp kết quả chi tiết có 90.180 dòng. Các cột ghi định danh địa hình, nhóm ghép cặp,
+nhiệm vụ, thuật toán, lần chạy, seed cố định, ngân sách, trạng thái thành công và hợp
 lệ, thời gian chạy, chiều dài đường, chi phí có trọng số, độ cao tăng, số ô đường
 đi và số cạnh đã thăm dò. CSV tóm tắt đi kèm nhóm lần chạy theo thuật toán, họ
-và độ khó. Giao thức JSON lưu quy tắc chuyển động, ngân sách thuật toán, số lần
+và độ khó. Tệp JSON mô tả quy trình lưu quy tắc chuyển động, ngân sách thuật toán, số lần
 chạy ngẫu nhiên,
-phạm vi kết xuất và điều kiện thực thi để đầu ra số không bị tách khỏi thiết lập
-đã tạo ra chúng.
+phạm vi tạo ảnh và điều kiện thực thi, nhờ đó mỗi kết quả luôn đi kèm thiết lập
+đã tạo ra nó.
 
 Thư mục \texttt{benchmark\_results/} chứa bảng cấp bản đồ và bảng tổng hợp, bốn
-hình tóm tắt benchmark, báo cáo cho người đọc và báo cáo kiểm tra có thể đọc
+hình tóm tắt kết quả, báo cáo cho người đọc và báo cáo kiểm tra có thể đọc
 bằng máy. Các bản ghi
 này phục vụ phần Kiểm định kỹ thuật và tái sử dụng sau này; chúng không thay thế
 CSV lần chạy thô. Khả năng truy xuất nguồn gốc của bản phát hành được hỗ trợ bởi
 \texttt{validation\_report.json}, ba danh sách SHA-256,
 \texttt{release\_manifest.json} và \texttt{release\_filelist.csv}.
 
-\subsection{Chỉ mục train, validation và test cố định}
+\subsection{Chỉ mục chia tập train, validation và test}
 
 Ba chỉ mục cố định được cung cấp trong \texttt{metadata/splits/}. Việc chia tập
 được thực hiện theo \texttt{matched\_group\_id}, không theo từng bản đồ, nên ba
-thành viên Dễ, Trung bình và Khó của cùng một địa hình gốc cùng mười nhiệm vụ
-dùng chung luôn nằm trong một tập. Phép chia được phân tầng theo họ địa hình.
+bản đồ Dễ, Trung bình và Khó của cùng một địa hình gốc cùng mười nhiệm vụ
+dùng chung luôn nằm trong một tập. Việc chia được thực hiện riêng trong từng họ địa hình.
 Trong mỗi họ, 234 nhóm thuộc tập train, 50 nhóm thuộc validation và 50 nhóm
 thuộc test; tổng cộng lần lượt là 1.170/250/250 nhóm, tương ứng
 3.510/750/750 bản đồ.
 
-Phép gán có tính xác định. Trong từng họ, định danh nhóm được xếp theo giá trị
-SHA-256 của tên giao thức, seed 20260830 và
+Cách chia này có thể tái tạo. Trong từng họ, định danh nhóm được xếp theo giá trị
+SHA-256 của tên quy trình, seed 20260830 và
 \texttt{matched\_group\_id}; 234 nhóm đầu, 50 nhóm tiếp theo và 50 nhóm cuối lần
 lượt được gán vào train, validation và test. Mỗi CSV có một dòng cho một nhóm,
 kèm định danh và đường dẫn của cả ba bản đồ. Tệp
 \texttt{split\_protocol.json} lưu quy tắc, seed, số lượng, mã băm của các tệp và
 kết quả kiểm tra không rò rỉ nhóm. Các chỉ mục này dành cho phương pháp học;
-benchmark planner tham chiếu được chạy trên toàn bộ bản đồ và không huấn luyện
+phép đánh giá sáu thuật toán tham chiếu được chạy trên toàn bộ bản đồ và không huấn luyện
 mô hình.
 
-\subsection{Sản phẩm ảnh}
+\subsection{Hình ảnh trong bản phát hành}
 
 Với mỗi trong 5.010 bản đồ, \texttt{images/terrain/} chứa một ảnh địa hình và
-\texttt{images/analysis/} chứa một ảnh phân tích khả năng di chuyển, tổng cộng
-10.020 ảnh bản đồ. Mỗi bản đồ còn có sáu ảnh đầu ra, tương ứng với sáu thuật
+\texttt{images/analysis/} chứa một ảnh phân tích khả năng đi qua địa hình, tổng cộng
+10.020 ảnh bản đồ. Mỗi bản đồ còn có sáu ảnh kết quả, tương ứng với sáu thuật
 toán lập kế hoạch, tạo thành 30.060 tệp dưới \texttt{images/paths/}. Với thuật
 toán ngẫu nhiên, ảnh dùng lần chạy thành công đầu tiên theo thứ tự seed cố định;
 nếu cả năm lần chạy đều không tìm được đường trong ngân sách, ảnh biểu diễn
 trạng thái không có tuyến cuối cùng. Trạng thái tương ứng được lưu trong CSV
-benchmark. Hai bảng ảnh tổng hợp cung cấp mục xem nhanh các bộ ba địa hình và
-đầu ra trên bản đồ Khó. Các ảnh là sản phẩm dẫn xuất để kiểm tra trực quan; tệp
-JSON bản đồ và CSV lần chạy là dữ liệu số chuẩn.
+kết quả. Hai bảng ảnh tổng hợp cho phép xem nhanh các bộ ba địa hình và
+kết quả trên bản đồ Khó. Các ảnh là hình minh họa được tạo từ dữ liệu để kiểm tra trực quan; tệp
+JSON bản đồ và CSV lần chạy là nguồn dữ liệu số chính.
 
 Hình~\ref{fig:analysis-products} cho thấy nội dung của ảnh phân tích, thay vì
 chỉ liệt kê đường dẫn thư mục. Ba ví dụ đều là bản đồ mức Khó có chỉ số 001 và
 được chọn trước theo họ, gồm \texttt{smooth\_obstacles}, \texttt{rugged} và
-\texttt{plateau} để minh họa ba kiểu hình thái khác nhau. Mỗi ảnh giữ cùng bố
-cục ba ô hình của quy trình: trường độ cao và đường đồng mức; chi phí khả năng di chuyển kèm vùng không thể đi;
+\texttt{plateau} để minh họa ba dạng địa hình khác nhau. Mỗi ảnh giữ cùng bố
+cục ba ô hình của quy trình: trường độ cao và đường đồng mức; chi phí đi qua địa hình kèm vùng không thể đi;
 và nguyên nhân từng tư thế tâm robot bị chặn.
 
 \begin{figure}[htbp]
@@ -930,15 +930,15 @@ và nguyên nhân từng tư thế tâm robot bị chặn.
   \IfFileExists{figures/analysis_plateau_hard.png}{%
     \includegraphics[width=0.98\linewidth]{figures/analysis_plateau_hard.png}%
   }{\figureplaceholder{42mm}{Thiếu ảnh phân tích \texttt{plateau}.}}%
-  \caption{\textbf{Sản phẩm phân tích địa hình trên ba họ minh họa ở mức Khó.}
-  Các ô hình trong mỗi hàng lần lượt mã hóa độ cao, chi phí khả năng di chuyển
-  và nguyên nhân bị chặn sau khi xét phạm vi chiếm chỗ. Toàn bộ ảnh được kết
-  xuất trực tiếp từ tệp JSON bản đồ có chỉ số 001; không chọn thủ công theo hình thức.}
+  \caption{\textbf{Kết quả phân tích địa hình trên ba họ minh họa ở mức Khó.}
+  Các ô hình trong mỗi hàng lần lượt thể hiện độ cao, chi phí đi qua địa hình
+  và nguyên nhân bị chặn sau khi xét vùng chiếm chỗ. Toàn bộ ảnh được tạo trực
+  tiếp từ tệp JSON bản đồ có chỉ số 001; không chọn thủ công theo hình thức.}
   \label{fig:analysis-products}
 \end{figure}
 
-Hình~\ref{fig:planner-route-comparison} minh họa sáu loại ảnh đầu ra được lưu
-cho cùng một bản đồ và cùng tọa độ Start--Goal. Hình này nhằm mô tả nội dung tệp,
+Hình~\ref{fig:planner-route-comparison} minh họa sáu loại ảnh kết quả được lưu
+cho cùng một bản đồ và cùng tọa độ điểm đầu--đích. Hình này nhằm mô tả nội dung tệp,
 không dùng để xếp hạng hoặc so sánh hiệu năng giữa các thuật toán.
 
 \begin{figure}[htbp]
@@ -954,9 +954,9 @@ không dùng để xếp hạng hoặc so sánh hiệu năng giữa các thuật
     \includegraphics[width=0.46\textwidth]{figures/rrt_star_mountain_hard.png} \\
     \small (e) RRT-Connect & \small (f) RRT* \\
   \end{tabular}
-  \caption{\textbf{Đầu ra thực tế của sáu thuật toán trên cùng một nhiệm vụ.}
+  \caption{\textbf{Kết quả của sáu thuật toán trên cùng một nhiệm vụ.}
   Tất cả các ô hình dùng \texttt{terrain\_mountain\_001\_hard} và cùng tọa độ
-  Start--Goal. Các tuyến được hiển thị là đầu ra do hệ thống benchmark tạo ra và
+  điểm đầu--đích. Các tuyến được hiển thị là kết quả do chương trình đánh giá tạo ra và
   không đi qua ô bị chặn.}
   \label{fig:planner-route-comparison}
 \end{figure}
@@ -966,32 +966,32 @@ không dùng để xếp hạng hoặc so sánh hiệu năng giữa các thuật
 \subsection{Kiểm định cấu trúc cốt lõi và thiết kế ghép cặp}
 
 Trình kiểm định phát hành đọc lại toàn bộ 5.010 tệp JSON bản đồ thay vì chỉ kiểm
-tra metadata tóm tắt. Các kiểm tra bao gồm cấu trúc cốt lõi, hình dạng và miền
+tra siêu dữ liệu tóm tắt. Các kiểm tra bao gồm cấu trúc cốt lõi, hình dạng và miền
 giá trị của \texttt{grid} và \texttt{elevation}, khả năng tái tạo lưới va chạm
 và \texttt{support\_elevation}, quy ước tọa độ \texttt{[y][x]} và
-\texttt{[x,y]}, số lượng nhiệm vụ, trạng thái hợp lệ của Start--Goal, khả năng
+\texttt{[x,y]}, số lượng nhiệm vụ, trạng thái hợp lệ của điểm đầu--đích, khả năng
 liên thông theo mô hình chuyển động công bố và sự nhất quán của các tọa độ nhiệm
 vụ trong mỗi bộ ba. Báo cáo
 \texttt{validation\_report.json} ghi nhận 5.010/5.010 bản đồ và 50.100/50.100 bản
 ghi bản đồ--nhiệm vụ hợp lệ, không có lỗi hoặc cảnh báo.
 
-Toàn bộ 5.010 tệp NPZ còn được kiểm tra CRC của ZIP, đúng tập 13 trường, header
-NPY, kích thước $128\times128$, kiểu dữ liệu và độ dài payload. Báo cáo chuyển
+Toàn bộ 5.010 tệp NPZ còn được kiểm tra CRC của ZIP, đúng tập 13 trường, phần
+tiêu đề NPY, kích thước $128\times128$, kiểu dữ liệu và độ dài phần dữ liệu. Báo cáo chuyển
 đổi không ghi nhận tệp lỗi.
 
-Một kiểm tra phát hành bổ sung trên metadata và kết quả benchmark xem xét 1.670
-nhóm ghép cặp. Cả 1.670 nhóm đều có hệ số cường độ địa hình $q$ tăng nghiêm ngặt và tỷ lệ vùng
-điều hướng được giảm nghiêm ngặt theo thứ tự Dễ--Trung bình--Khó; số vi phạm của
-mỗi điều kiện bằng 0. Kiểm tra này quan trọng vì các thành viên của một bộ ba là
-mẫu ghép cặp và không được xem như ba hiện thực độc lập.
+Một kiểm tra bổ sung trên siêu dữ liệu và kết quả đánh giá xem xét 1.670
+nhóm ghép cặp. Cả 1.670 nhóm đều có hệ số cường độ địa hình $q$ tăng nghiêm ngặt và tỷ lệ ô
+đi được giảm nghiêm ngặt theo thứ tự Dễ--Trung bình--Khó; số vi phạm của
+mỗi điều kiện bằng 0. Kiểm tra này quan trọng vì ba bản đồ trong một bộ ba là
+mẫu ghép cặp và không được xem như ba mẫu độc lập.
 
 \subsection{Kiểm định phân tầng độ khó}
 
 Hình~\ref{fig:difficulty-overview} mở rộng kiểm tra thứ tự bằng các thống kê mô
 tả trên toàn bộ 5.010 bản đồ. Mỗi điểm là trung bình của 334 bản đồ trong một tổ hợp
 họ--độ khó và thanh sai số là một độ lệch chuẩn mẫu giữa các bản đồ. Từ Dễ đến
-Khó, cả năm họ đều giảm diện tích điều hướng được đồng thời tăng hệ số $q$ và
-độ dốc trung bình theo phạm vi chiếm chỗ. Hình được dùng để xác nhận rằng các nhãn độ
+Khó, cả năm họ đều giảm tỷ lệ ô đi được đồng thời tăng hệ số $q$ và
+độ dốc trung bình trên vùng chiếm chỗ. Hình được dùng để xác nhận rằng các nhãn độ
 khó tuân theo các tiêu chí hiệu chỉnh đã công bố, không dùng để so sánh hiệu năng
 thuật toán.
 
@@ -1004,8 +1004,8 @@ thuật toán.
     \texttt{figures/dataset\_difficulty\_overview.png}.}%
   }
   \caption{\textbf{Hiệu chỉnh độ khó địa hình ghép cặp trên toàn bộ bộ dữ liệu.}
-  Bốn ô hình lần lượt trình bày tỷ lệ vùng điều hướng được, hệ số cường độ địa
-  hình $q$, độ dốc trung bình theo phạm vi chiếm chỗ và số thành phần liên thông theo năm họ và ba mức
+  Bốn ô hình lần lượt trình bày tỷ lệ ô đi được, hệ số cường độ địa
+  hình $q$, độ dốc trung bình trên vùng chiếm chỗ và số thành phần liên thông theo năm họ và ba mức
   độ khó. Điểm và thanh sai số là trung bình $\pm$ độ lệch chuẩn mẫu trên 334
   bản đồ cho mỗi tổ hợp họ--độ khó.}
   \label{fig:difficulty-overview}
@@ -1014,10 +1014,10 @@ thuật toán.
 \subsection{Kiểm định độ khó lập kế hoạch theo cặp}
 
 Để kiểm tra độ khó bằng đại lượng không tham gia vào quy tắc chấp nhận nhãn,
-chúng tôi dùng nhiệm vụ dài chuẩn có cùng tọa độ Start--Goal trong ba thành viên
+chúng tôi dùng nhiệm vụ dài chuẩn có cùng tọa độ điểm đầu--đích trong ba bản đồ
 của mỗi bộ ba. Đơn vị thống kê là một bộ ba ghép cặp; mỗi họ có $n=334$ bộ ba.
 Với các thuật toán ngẫu nhiên, năm lần chạy trước hết được gộp thành tỷ lệ thành
-công cấp bản đồ. Sau đó, với từng metric, chênh lệch
+công cấp bản đồ. Sau đó, với từng chỉ số, chênh lệch
 $\Delta=\mathrm{Khó}-\mathrm{Dễ}$ được tính trong mỗi bộ ba.
 Bảng~\ref{tab:paired-planning-effects} báo cáo
 trung bình ghép cặp và khoảng tin cậy 95\% xấp xỉ chuẩn
@@ -1065,28 +1065,28 @@ Chi phí tối ưu tăng từ Dễ sang Khó ở cả năm họ, với khoảng 
 \texttt{smooth\_obstacles} và \texttt{plateau}. Vì vậy, phân tầng độ khó làm
 tăng chi phí lập kế hoạch một cách nhất quán, còn tác động lên xác suất thành
 công phụ thuộc họ địa hình và thuật toán; nhãn không được diễn giải như một bảo
-đảm rằng mọi planner đều suy giảm trên mọi họ.
+đảm rằng mọi thuật toán đều suy giảm trên mọi họ.
 
-\subsection{Kiểm định đường đi và đầu ra benchmark}
+\subsection{Kiểm định đường đi và kết quả đánh giá}
 
-Mỗi đường đi do thuật toán trả về được kiểm tra trước khi ghi bản ghi lần chạy.
-Phép kiểm tra xét ô đầu--cuối, va chạm, quy tắc cắt góc chéo, giới hạn độ dốc
-cạnh và tính liên tục tám hướng sau raster hóa. Trong 90.180 lần chạy, 83.998 lần
+Mỗi đường đi do thuật toán trả về được kiểm tra trước khi lưu kết quả lần chạy.
+Phép kiểm tra xét ô đầu--đích, va chạm, quy tắc cắt góc chéo, giới hạn độ dốc
+cạnh và tính liên tục tám hướng sau khi chuyển đường thành chuỗi ô. Trong 90.180 lần chạy, 83.998 lần
 trả về đường hợp lệ và 6.182 lần không tìm được đường trong ngân sách cố định;
 không có đường nào được đánh dấu thành công nhưng không hợp lệ. Cả 15.030 lần
 chạy của BFS, Dijkstra và A* đều thành công trên 5.010 nhiệm vụ chuẩn, xác nhận
-rằng mỗi nhiệm vụ benchmark có ít nhất một đường đi trên lưới tham chiếu; do đó
+rằng mỗi nhiệm vụ chuẩn có ít nhất một đường đi trên lưới tham chiếu; do đó
 không có nhiệm vụ nào mà cả sáu thuật toán đều thất bại. Các lần không tìm được
 đường chỉ xuất hiện ở PRM, RRT-Connect và RRT* với lấy mẫu
 ngẫu nhiên và ngân sách hữu hạn; chúng không có nghĩa là nhiệm vụ không liên
-thông. Các số này chỉ kiểm tra tính hợp lệ và xác nhận rằng benchmark ghi nhận
+thông. Các số này chỉ kiểm tra tính hợp lệ và xác nhận rằng phép đánh giá ghi nhận
 được cả lần chạy thành công lẫn lần không tìm được đường dưới ngân sách cố định;
 chúng không được dùng để xếp hạng thuật toán.
 
 Kiểm tra phát hành đọc các cờ \texttt{success} và \texttt{path\_valid} trong
-90.180 dòng lần chạy, đồng thời kiểm kê 30.060 đơn vị bản đồ--thuật toán. Kết quả
+90.180 dòng lần chạy, đồng thời kiểm kê 30.060 cặp bản đồ--thuật toán. Kết quả
 không có dòng \texttt{success=True} nào mang cờ \texttt{path\_valid} khác
-\texttt{True}, và không thiếu ảnh đầu ra nào. Ngoài ra, A* và Dijkstra cho cùng
+\texttt{True}, và không thiếu ảnh kết quả nào. Ngoài ra, A* và Dijkstra cho cùng
 chi phí có trọng số đến sáu chữ số
 thập phân được lưu trên cả 5.010 nhiệm vụ chuẩn; chênh lệch tuyệt đối lớn nhất
 trong tệp kết quả là 0. Đây là kiểm tra chéo giữa hai cách triển khai tìm kiếm tối
@@ -1105,56 +1105,56 @@ kỹ thuật chính.
     Nội dung xác minh & Số đối tượng kiểm tra & Số lỗi phát hiện \\
     \midrule
     Cấu trúc cốt lõi của tệp bản đồ & 5.010 bản đồ & 0 \\
-    Tính hợp lệ của nhiệm vụ Start--Goal & 50.100 bản ghi bản đồ--nhiệm vụ & 0 \\
+    Tính hợp lệ của nhiệm vụ điểm đầu--đích & 50.100 bản ghi bản đồ--nhiệm vụ & 0 \\
     Thứ tự hệ số $q$ Dễ--Trung bình--Khó & 1.670 bộ ba & 0 \\
-    Thứ tự tỷ lệ vùng điều hướng được & 1.670 bộ ba & 0 \\
-    Rò rỉ \texttt{matched\_group\_id} giữa các split & 1.670 bộ ba & 0 \\
+    Thứ tự tỷ lệ ô đi được & 1.670 bộ ba & 0 \\
+    Rò rỉ \texttt{matched\_group\_id} giữa các tập & 1.670 bộ ba & 0 \\
     Tính hợp lệ của đường được báo thành công & 83.998 đường & 0 \\
-    Tính đầy đủ của ảnh đầu ra thuật toán & 30.060 ảnh kỳ vọng & 0 \\
+    Tính đầy đủ của ảnh kết quả thuật toán & 30.060 ảnh kỳ vọng & 0 \\
     Sự nhất quán chi phí A*--Dijkstra & 5.010 nhiệm vụ chuẩn & 0 \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-Ở hàng kiểm tra ảnh đầu ra, giá trị 0 trong cột ``Số lỗi phát hiện'' nghĩa là cả
+Ở hàng kiểm tra ảnh kết quả, giá trị 0 trong cột ``Số lỗi phát hiện'' nghĩa là cả
 30.060 ảnh kỳ vọng đều tồn tại. Sự tồn tại của ảnh không đồng nghĩa thuật toán
 luôn tìm được đường; trạng thái thành công hoặc không tìm được đường phải được
 đọc từ CSV lần chạy.
-Kiểm tra split còn xác nhận mỗi trong 1.670 nhóm xuất hiện đúng một lần trên ba
-chỉ mục và mỗi split có đúng số nhóm quy định cho từng họ địa hình.
+Kiểm tra cách chia tập còn xác nhận mỗi trong 1.670 nhóm xuất hiện đúng một lần
+trên ba chỉ mục và mỗi tập có đúng số nhóm quy định cho từng họ địa hình.
 
 \subsection{Khả năng tái lập}
 
-Các seed và chữ ký cấu hình được giữ trong bản phát hành dữ liệu; phiên bản
+Các seed và mã nhận dạng cấu hình được giữ trong bản phát hành dữ liệu; phiên bản
 Python và thư viện được cung cấp trong kho mã nguồn. Bộ kiểm thử hồi quy kiểm tra
 mặt phẳng ngang, khôi phục độ dốc của mặt
-phẳng đỡ, tính xác định và phân tầng nhiệm vụ, raster hóa cạnh đối xứng, quy tắc
+phẳng đỡ, khả năng tái tạo và cách chia nhiệm vụ theo khoảng cách, phép chuyển cạnh thành chuỗi ô đối xứng, quy tắc
 cắt góc, sử dụng trọng số chi phí và sự đồng thuận A*/Dijkstra. Ba danh sách
-SHA-256 cho phép phát hiện thay đổi ở 5.010 bản đồ JSON, các tệp NPZ và metadata
-cốt lõi sau khi tải.
+SHA-256 cho phép phát hiện thay đổi ở 5.010 bản đồ JSON, các tệp NPZ và siêu dữ liệu
+chính sau khi tải.
 
 \section{Lưu ý sử dụng (Usage Notes)}
 
-Các lớp raster dùng chỉ số \texttt{[y][x]}, còn ô Start--Goal được lưu theo
-\texttt{[x,y]}; đảo hai quy ước này sẽ làm chuyển vị bản đồ mà không nhất thiết
-gây lỗi đọc tệp. Bộ đọc không cần thư viện phụ thuộc trong
-\texttt{examples/load\_map.py} minh họa cách truy cập JSON đúng. Với xử lý số,
-tệp NPZ cùng tên gốc cho phép tải trực tiếp các mảng raster; metadata nhiệm vụ và
+Các lớp raster dùng chỉ số \texttt{[y][x]}, còn ô đầu--đích được lưu theo
+\texttt{[x,y]}; đảo hai quy ước này sẽ làm đổi hàng thành cột mà không nhất thiết
+gây lỗi đọc tệp. Tệp \texttt{examples/load\_map.py} minh họa cách đọc JSON đúng
+chỉ bằng thư viện chuẩn. Với xử lý số,
+tệp NPZ cùng tên gốc cho phép tải trực tiếp các mảng raster; siêu dữ liệu nhiệm vụ và
 cấu hình vẫn cần đọc từ JSON. Nhiệm vụ
-\texttt{long} được chọn trên thành viên Khó từ dải 0,75--0,98 của các khoảng
+\texttt{long} được chọn trên bản đồ Khó từ dải 0,75--0,98 của các khoảng
 cách có trọng số đã xếp hạng rồi sao chép sang hai bản đồ Dễ và Trung bình ghép
 cặp. Nhiệm vụ dài nhất được chọn làm nhiệm vụ chuẩn.
 
-Lưới va chạm và các lớp khả năng di chuyển được phát hành cho footprint tròn
+Lưới va chạm và các lớp về khả năng đi qua địa hình được phát hành cho vùng chiếm chỗ hình tròn
 bán kính 0,45 m cùng các giới hạn hình học đã công bố. Khi đánh giá robot khác,
-người dùng cần tính lại các lớp có xét footprint từ \texttt{elevation}, cập nhật
+người dùng cần tính lại các lớp có xét vùng chiếm chỗ từ \texttt{elevation}, cập nhật
 dải biên an toàn và quy tắc chuyển động, rồi kiểm tra lại tính liên thông của
-nhiệm vụ. Làm giãn trực tiếp \texttt{grid} đã phát hành sẽ tính footprint tham
+nhiệm vụ. Làm giãn trực tiếp \texttt{grid} đã phát hành sẽ tính vùng chiếm chỗ tham
 chiếu hai lần, trừ khi chủ đích là thêm một biên an toàn riêng.
 
-Với phương pháp học, cần tuân theo các chỉ mục split cố định và xem
+Với phương pháp học, cần tuân theo các chỉ mục chia tập cố định và xem
 \texttt{matched\_group\_id} là đơn vị không thể tách. Trong phân tích ghép cặp,
-một bộ ba là đơn vị thống kê; ba mức độ khó và các seed lặp của planner ngẫu
+một bộ ba là đơn vị thống kê; ba mức độ khó và các seed lặp của thuật toán ngẫu
 nhiên không phải các mẫu địa hình độc lập. Bộ dữ liệu chỉ mô tả hình học tĩnh
 dưới dạng trường độ cao 2,5D. Nó không mô hình hóa biến dạng đất, trượt bánh và
 động lực học xe; thực vật, nước, bùn hoặc tính chất ngữ nghĩa của bề mặt; nhiễu
@@ -1164,14 +1164,14 @@ bán kính quay, cơ cấu lái hoặc động học riêng của từng robot. 
 được tạo ở độ phân giải 0,25 m mỗi ô; ảnh hưởng của việc đổi độ phân giải chưa
 được kiểm định. Do địa hình là dữ liệu tổng hợp, mức độ tương đồng và khả năng
 chuyển giao sang địa hình thực cũng chưa được xác nhận định lượng. Vì vậy, các
-ngưỡng robot và đầu ra planner tham chiếu không nên được diễn giải như giới hạn
+ngưỡng robot và kết quả của các thuật toán tham chiếu không nên được diễn giải như giới hạn
 vận hành hoặc bảng xếp hạng phổ quát.
 
 \section{Tính sẵn có của dữ liệu (Data Availability)}
 
 Bản phát hành đầy đủ gồm tệp JSON bản đồ chuẩn, raster NPZ không dùng pickle,
-nhiệm vụ Start--Goal, chỉ mục split cố định, ảnh dẫn xuất, bản ghi benchmark,
-metadata, báo cáo kiểm định, danh mục tệp và mã kiểm tra SHA-256 được lưu tại
+nhiệm vụ điểm đầu--đích, chỉ mục chia tập cố định, ảnh được tạo từ dữ liệu, kết quả đánh giá,
+siêu dữ liệu, báo cáo kiểm định, danh mục tệp và mã kiểm tra SHA-256 được lưu tại
 \datasetrepository{} và định danh bằng
 \datasetdoi{}\cite{paired25ddata}. Bộ dữ liệu được phát hành theo
 \datasetlicense{}. Kho mã nguồn không thay thế kho dữ liệu lưu trữ
@@ -1179,8 +1179,8 @@ lâu dài cho toàn bộ 32,6 GB dữ liệu.
 
 \section{Tính sẵn có của mã nguồn (Code Availability)}
 
-Mã Python dùng để sinh địa hình, phân tích khả năng di chuyển, chọn nhiệm vụ,
-chạy sáu thuật toán, kết xuất ảnh, kiểm định và chuẩn bị bản phát hành được cung
+Mã Python dùng để sinh địa hình, phân tích khả năng đi qua địa hình, chọn nhiệm vụ,
+chạy sáu thuật toán, tạo ảnh, kiểm định và chuẩn bị bản phát hành được cung
 cấp tại \coderepository{}. Kho mã nguồn chứa phiên bản tương ứng với bản thảo
 đánh giá này, môi trường Conda, \texttt{requirements-lock.txt}, kiểm thử hồi
 quy và hướng dẫn tái lập. Mã nguồn được cấp phép theo giấy phép MIT.
@@ -1303,7 +1303,7 @@ path planning. \textit{Zenodo} (2026).
 \section*{Đóng góp của tác giả (Author Contributions)}
 
 T.Q.M. đề xuất ý tưởng và thiết kế bộ dữ liệu; phát triển phần mềm sinh địa
-hình, phân tích khả năng di chuyển, lựa chọn nhiệm vụ, benchmark các thuật toán
+hình, phân tích khả năng đi qua địa hình, lựa chọn nhiệm vụ, đánh giá các thuật toán
 và kiểm định; sinh, kiểm định, quản lý và lập tài liệu cho bản phát hành dữ liệu;
 thực hiện phân tích, chuẩn bị hình và bảng; soạn thảo, chỉnh sửa và phê duyệt
 bản thảo.

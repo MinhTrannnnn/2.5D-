@@ -55,10 +55,12 @@ labels. The directory structure is kept as hand-written LaTeX `verbatim` text;
 no generative-AI image is used.
 
 The dataset repository and reserved DOI are fixed as Zenodo record
-`10.5281/zenodo.22074838`. The code repository targets the immutable
-`v1.0.0` GitHub release, and the dataset licence is fixed as CC BY 4.0. Author details and
-the contribution, competing-interest, and funding declarations must also be
-confirmed by the author.
+`10.5281/zenodo.22074838`. During manuscript review, the Code Availability
+statement points to the GitHub repository root. Before final publication, the
+exact source version used to create the dataset should be preserved under the
+`v1.0.0` tag (and preferably a software DOI). The dataset licence is fixed as
+CC BY 4.0. Author details and the contribution, competing-interest, and funding
+declarations must also be confirmed by the author.
 
 ## Submission-readiness checks
 

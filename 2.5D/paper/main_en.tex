@@ -259,7 +259,9 @@ stored as \texttt{array[y][x]}, whereas task endpoints are stored as
 \begin{equation}
   X=0.25x, \qquad Y=0.25y, \qquad Z=z(y,x),
 \end{equation}
-where $z$ is the raw surface-elevation layer in metres. Cell-centre coordinates
+where $x$ is the column index, $y$ is the row index, and the factor 0.25
+converts cell indices to metres. The function $z(y,x)$ returns the surface
+elevation at that cell in metres. Cell-centre coordinates
 therefore range from 0 to 31.75 m on each horizontal axis.
 
 Generation uses the master seed \texttt{7300}. For family index
@@ -268,6 +270,9 @@ $i\in\{1,\ldots,334\}$, the base seed is
 \begin{equation}
   s_{f,i}=7300+1{,}000{,}003f+10{,}007(i-1).
 \end{equation}
+The term containing $f$ separates the five terrain families, while the term
+containing $i$ separates samples within a family. Consequently, every $(f,i)$
+pair has a distinct base seed that can be reconstructed directly.
 If a realisation does not satisfy all acceptance constraints, the program
 makes up to ten deterministic attempts; attempt $a$ uses
 $s_{f,i}+104{,}729a$. The accepted seed, task seed, configuration, and realised
@@ -386,18 +391,23 @@ A candidate difficulty surface is formed as
 \begin{equation}
   z_d(x,y)=q z_0(x,y)+\alpha_f(q)\,\eta_f(x,y),
 \end{equation}
-where $z_0$ is the base realisation and the complete detail-amplitude rule is
+where $z_0$ is the base realisation. The multiplier $q$ scales the large-scale
+terrain structure, whereas $\alpha_f(q)\eta_f$ adds local surface detail. The
+complete detail-amplitude rule is
 \begin{equation}
   \alpha_f(q)=\min\!\left\{s_f\left[0.010q+
   0.060\max(0,q-0.75)^{1.24}\right],\ m_f\right\}.
 \end{equation}
+The minimum operation caps the detail amplitude at $m_f$, so local roughness
+can increase with $q$ without exceeding the family-specific maximum.
 For severity interval $[q_{\min},q_{\max}]$, the exact 34 evaluated values are
 not random; they are
 \begin{equation}
   q_k=q_{\min}\left(\frac{q_{\max}}{q_{\min}}\right)^{k/33},
   \qquad k=0,\ldots,33,
 \end{equation}
-which is the definition used by \texttt{numpy.geomspace}. The general intervals are
+which is the definition used by \texttt{numpy.geomspace}. Thus, the values are
+evenly spaced on a logarithmic scale rather than on a linear scale. The general intervals are
 0.18--1.05, 0.48--2.40, and 0.90--4.80 for Easy, Medium, and Hard,
 respectively. \texttt{plateau} uses 0.18--1.25, 1.20--3.20, and 2.80--6.00
 because a plateau top may remain a valid robot pose even when its surrounding
@@ -465,15 +475,22 @@ the exact motion graph defined below. The released metrics are
   \psi=\frac{|L_F|}{|F|}=\frac{\lambda}{\phi},
 \end{equation}
 where $\phi$ is navigable fraction, $\lambda$ is largest-component fraction,
-and $\psi$ is largest-component share. Collision-boundary density counts only
-horizontal and vertical cell adjacencies:
+and $\psi$ is largest-component share. In practical terms, $\phi$ measures how
+much of the map is traversable, while $\lambda$ and $\psi$ indicate whether
+that traversable area forms one large region or is fragmented.
+
+Collision-boundary density is the proportion of adjacent cell pairs with
+different states---one traversable and one blocked. Only horizontal and
+vertical adjacencies are counted:
 \begin{equation}
   \delta_B=\frac{
   \sum_{y=0}^{H-1}\sum_{x=0}^{W-2}[G_{y,x}\ne G_{y,x+1}]+
   \sum_{y=0}^{H-2}\sum_{x=0}^{W-1}[G_{y,x}\ne G_{y+1,x}]}
   {H(W-1)+(H-1)W}.
 \end{equation}
-Here brackets denote an indicator. An initial eight-neighbour binary-component
+Here brackets denote an indicator: it equals 1 when the enclosed condition is
+true and 0 otherwise. A larger $\delta_B$ therefore indicates more boundary
+between traversable and blocked regions. An initial eight-neighbour binary-component
 calculation gives $\widetilde\lambda$ for inexpensive screening; accepted
 candidates are then recomputed using the full movement graph. For a difficulty
 with navigable interval $[\ell,u]$, target $t$, and minimum component fraction
@@ -482,7 +499,11 @@ $\lambda_{\min}$, the candidate score is exactly
   S=|\phi-t|+4\{[\ell-\phi]_+ +[\phi-u]_+\}
   +3[\lambda_{\min}-\widetilde\lambda]_+,
 \end{equation}
-where $[x]_+=\max(0,x)$. Candidates are sorted by $S$, filtered by every limit
+where $[x]_+=\max(0,x)$. The first term measures deviation from the target
+navigable fraction. The second penalises candidates outside $[\ell,u]$, and
+the third penalises candidates whose largest component is too small. Weights 4
+and 3 make these two violations more influential than an ordinary deviation
+from the target. Candidates are sorted by $S$, filtered by every limit
 in Table~\ref{tab:difficulty-acceptance}, and the first six feasible candidates
 per difficulty are retained. Before the full motion-graph calculation, the
 inexpensive screen rejects candidates with
@@ -530,13 +551,17 @@ plane $\widehat z_i=\bar z+a u_i+b v_i$ is computed as
   a=\frac{\sum_i u_i z_i}{\sum_i u_i^2},\qquad
   b=\frac{\sum_i v_i z_i}{\sum_i v_i^2}.
 \end{equation}
-The support elevation at the centre is $\bar z$; footprint slope and RMS
+Here $\bar z$ is the mean elevation and the fitted-plane value at the centre;
+$a$ and $b$ are the plane gradients along the two horizontal axes. From these
+gradients, footprint slope and RMS
 roughness are, respectively,
 \begin{equation}
   \theta=\frac{180}{\pi}\arctan\!\left(\sqrt{a^2+b^2}\right),\qquad
   r=\sqrt{\frac{1}{N}\sum_{i=1}^{N}
   \left(z_i-\bar z-a u_i-b v_i\right)^2}.
 \end{equation}
+Here $\theta$ measures the overall tilt of the fitted support plane, whereas
+$r$ measures the elevation variation that remains after this tilt is removed.
 In the implementation, local sums of $z$, $z^2$, $uz$, and $vz$ are evaluated
 simultaneously at all cell centres using two-dimensional convolutions from
 \texttt{scipy.ndimage}; point gradients, Gaussian filters, and local maxima are
@@ -552,12 +577,19 @@ traversability cost is
   0.25\frac{r}{0.10\ \mathrm{m}}+
   0.30\frac{h}{0.65\ \mathrm{m}}.
 \end{equation}
+The three ratios compare slope, roughness, and step height with their respective
+thresholds. The weights 0.45, 0.25, and 0.30 specify the contribution of each
+factor to the total cost.
 Let $B(x,y)$ be a Boolean variable for a robot-centre pose. The exact
 classification rule is
 \begin{equation}
   B=(\theta>28^\circ)\ \lor\ (r>0.10\ \mathrm{m})\ \lor\
   (h>0.65\ \mathrm{m})\ \lor\ (C_{\mathrm{trav}}\geq1).
 \end{equation}
+Because the conditions are joined by ``or'', a pose is blocked if any
+individual threshold is exceeded or if the combined cost reaches 1. The latter
+condition prevents a pose with several near-threshold factors from being marked
+traversable merely because no single factor exceeds its own threshold.
 A pose is traversable if and only if $B$ is false and the centre is outside the
 boundary strip. Specifically, a centre is blocked when $x<R_c$, $x\geq W-R_c$,
 $y<R_c$, or $y\geq H-R_c$. Plane-fit convolutions use reflected input at the
@@ -581,6 +613,10 @@ shared edge cost is
   c=\sqrt{d^2+\Delta z^2}
   \left[1+w\left(\frac{|\Delta z|}{d}\right)^2\right].
 \end{equation}
+The square-root factor is the three-dimensional length of the transition. The
+bracketed factor increases the cost with squared grade, so transitions with
+the same three-dimensional length may still have different costs when their
+grades differ.
 The path objective is the sum of $c$ over all transitions. The same movement-
 validity rules are used for connectivity checks, all six planners, and path
 validation. Cost $c$ is used to rank Start--Goal pairs, serves as the objective
@@ -611,6 +647,11 @@ labels \texttt{short}, \texttt{medium}, and \texttt{long}, respectively. The
 longest task is marked as the canonical visualisation and benchmark task. A
 triplet is accepted only if every selected pair remains connected under the
 documented movement model at all three difficulty levels.
+
+In simple terms, the program ranks pairs from shorter to longer, extracts the
+segments associated with the three quantile ranges, and selects evenly spaced
+pairs within each segment. The rules below specify only how ties, duplicate
+pairs, and segments with too few candidates are handled exactly.
 
 For exact tie and shortage handling, endpoint pairs are stored as unordered
 pairs and ranked first by weighted distance and then lexicographically by row

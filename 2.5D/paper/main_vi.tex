@@ -274,7 +274,8 @@ raster được lưu theo \texttt{array[y][x]}, trong khi điểm đầu--đích
 \begin{equation}
   X=0.25x, \qquad Y=0.25y, \qquad Z=z(y,x),
 \end{equation}
-trong đó $z$ là lớp độ cao bề mặt thô tính bằng mét. Tọa độ tâm ô vì vậy nằm
+trong đó $x$ là chỉ số cột, $y$ là chỉ số hàng và hệ số 0,25 đổi chỉ số ô sang
+mét. Hàm $z(y,x)$ trả về độ cao bề mặt tại ô đó, cũng tính bằng mét. Tọa độ tâm ô vì vậy nằm
 trong khoảng từ 0 đến 31,75 m trên mỗi trục ngang.
 
 Quá trình sinh dùng seed chính \texttt{7300}. Với chỉ số họ
@@ -283,6 +284,9 @@ $i\in\{1,\ldots,334\}$, seed gốc là
 \begin{equation}
   s_{f,i}=7300+1{,}000{,}003f+10{,}007(i-1).
 \end{equation}
+Trong công thức này, số hạng theo $f$ tách seed của năm họ địa hình, còn số
+hạng theo $i$ tách các mẫu trong cùng một họ. Nhờ đó, mỗi cặp $(f,i)$ có một
+seed gốc riêng và có thể được tạo lại trực tiếp.
 Nếu mẫu tạo ra không thỏa các điều kiện chấp nhận, chương trình thử lại tối đa
 mười lần theo một thứ tự cố định; lần thử $a$ dùng $s_{f,i}+104{,}729a$. Tệp
 bản đồ lưu seed được chọn, seed dùng để tạo nhiệm vụ, cấu hình và giá trị thực
@@ -389,18 +393,23 @@ Bề mặt ứng viên cho độ khó được tạo theo
 \begin{equation}
   z_d(x,y)=q z_0(x,y)+\alpha_f(q)\,\eta_f(x,y),
 \end{equation}
-trong đó $z_0$ là bề mặt gốc và biên độ của thành phần chi tiết được tính bằng
+trong đó $z_0$ là bề mặt gốc. Hệ số $q$ làm tăng hoặc giảm các dạng địa hình
+quy mô lớn; thành phần $\alpha_f(q)\eta_f$ bổ sung chi tiết gồ ghề cục bộ.
+Biên độ của thành phần chi tiết được tính bằng
 \begin{equation}
   \alpha_f(q)=\min\!\left\{s_f\left[0.010q+
   0.060\max(0,q-0.75)^{1.24}\right],\ m_f\right\}.
 \end{equation}
+Hàm $\min$ giới hạn biên độ ở $m_f$, vì vậy độ gồ ghề cục bộ tăng theo $q$
+nhưng không vượt quá mức tối đa của từng họ địa hình.
 Trong mỗi khoảng độ khó $[q_{\min},q_{\max}]$, chương trình đánh giá đúng 34
 giá trị cố định theo công thức
 \begin{equation}
   q_k=q_{\min}\left(\frac{q_{\max}}{q_{\min}}\right)^{k/33},
   \qquad k=0,\ldots,33,
 \end{equation}
-đúng như hàm \texttt{numpy.geomspace}. Các khoảng chung là
+đúng như hàm \texttt{numpy.geomspace}. Nói cách khác, các giá trị được đặt cách
+đều trên thang logarit, thay vì cách đều trên thang tuyến tính. Các khoảng chung là
 0,18--1,05, 0,48--2,40 và 0,90--4,80 cho Dễ, Trung bình và
 Khó. Plateau dùng 0,18--1,25, 1,20--3,20 và 2,80--6,00 vì mặt trên phẳng của
 khối cao nguyên vẫn có thể là tư thế robot hợp lệ ngay cả khi cạnh bao quanh không thể đi
@@ -466,15 +475,21 @@ $F=\{(x,y):G(y,x)=0\}$ và gọi $L_F$ là thành phần liên thông lớn nh�
 \end{equation}
 trong đó $\phi$ là tỷ lệ ô đi được trên toàn bản đồ, $\lambda$ là tỷ lệ ô thuộc
 thành phần liên thông lớn nhất trên toàn bản đồ, còn $\psi$ là tỷ lệ ô đi được
-thuộc thành phần đó. Mật độ
-biên va chạm chỉ đếm cặp ô kề ngang và dọc:
+thuộc thành phần đó. Vì vậy, $\phi$ đo tổng diện tích có thể đi qua, còn
+$\lambda$ và $\psi$ cho biết vùng đi được có tập trung thành một vùng lớn hay
+bị chia nhỏ.
+
+Mật độ biên va chạm là tỷ lệ các cặp ô kề nhau có trạng thái khác nhau: một ô
+đi được và một ô bị chặn. Chỉ các cặp ô kề ngang và dọc được tính:
 \begin{equation}
   \delta_B=\frac{
   \sum_{y=0}^{H-1}\sum_{x=0}^{W-2}[G_{y,x}\ne G_{y,x+1}]+
   \sum_{y=0}^{H-2}\sum_{x=0}^{W-1}[G_{y,x}\ne G_{y+1,x}]}
   {H(W-1)+(H-1)W}.
 \end{equation}
-Dấu ngoặc vuông là hàm chỉ thị. Phép tính nhanh thành phần nhị phân tám hướng
+Dấu ngoặc vuông là hàm chỉ thị: nhận giá trị 1 khi điều kiện bên trong đúng và
+0 khi điều kiện sai. Giá trị $\delta_B$ cao hơn biểu thị nhiều đường biên giữa
+vùng đi được và vùng bị chặn hơn. Phép tính nhanh thành phần nhị phân tám hướng
 cho $\widetilde\lambda$ để lọc nhanh ban đầu; các ứng viên còn lại sau đó được
 tính lại bằng đồ thị chuyển động đầy đủ. Với khoảng tỷ lệ ô đi được $[\ell,u]$,
 mục tiêu $t$ và tỷ lệ thành phần tối thiểu $\lambda_{\min}$, điểm ứng viên chính
@@ -483,7 +498,11 @@ xác là
   S=|\phi-t|+4\{[\ell-\phi]_+ +[\phi-u]_+\}
   +3[\lambda_{\min}-\widetilde\lambda]_+,
 \end{equation}
-trong đó $[x]_+=\max(0,x)$. Ứng viên được xếp theo $S$, lọc bằng mọi ngưỡng
+trong đó $[x]_+=\max(0,x)$. Hạng tử thứ nhất đo độ lệch so với tỷ lệ ô đi được
+mục tiêu. Hạng tử thứ hai phạt ứng viên nằm ngoài khoảng $[\ell,u]$, còn hạng
+tử thứ ba phạt ứng viên có thành phần liên thông lớn nhất quá nhỏ. Trọng số 4
+và 3 làm cho hai vi phạm này ảnh hưởng mạnh hơn sai lệch thông thường so với
+mục tiêu. Ứng viên được xếp theo $S$, lọc bằng mọi ngưỡng
 trong Bảng~\ref{tab:difficulty-acceptance}, rồi giữ sáu ứng viên hợp lệ đầu tiên
 cho mỗi độ khó. Trước phép tính đồ thị đầy đủ, bước lọc nhanh loại ứng viên
 có $\widetilde\lambda<0.95\lambda_{\min}$; ngưỡng $\lambda_{\min}$ chính xác
@@ -529,13 +548,17 @@ $\widehat z_i=\bar z+a u_i+b v_i$ được tính bởi
   a=\frac{\sum_i u_i z_i}{\sum_i u_i^2},\qquad
   b=\frac{\sum_i v_i z_i}{\sum_i v_i^2}.
 \end{equation}
-Độ cao của mặt phẳng đỡ tại tâm là $\bar z$; độ dốc trên vùng chiếm chỗ và độ nhám RMS
+Ở đây, $\bar z$ là độ cao trung bình và cũng là giá trị của mặt phẳng tại tâm;
+$a$ và $b$ là độ nghiêng của mặt phẳng theo hai phương ngang. Từ hai hệ số độ
+nghiêng này, độ dốc trên vùng chiếm chỗ và độ nhám RMS
 lần lượt là
 \begin{equation}
   \theta=\frac{180}{\pi}\arctan\!\left(\sqrt{a^2+b^2}\right),\qquad
   r=\sqrt{\frac{1}{N}\sum_{i=1}^{N}
   \left(z_i-\bar z-a u_i-b v_i\right)^2}.
 \end{equation}
+Trong đó, $\theta$ chỉ đo độ nghiêng chung của mặt phẳng đỡ, còn $r$ đo phần
+dao động độ cao còn lại sau khi đã loại độ nghiêng này.
 Trong cài đặt, các tổng cục bộ của $z$, $z^2$, $uz$ và $vz$ được đánh giá đồng
 thời tại mọi tâm ô bằng tích chập hai chiều của
 \texttt{scipy.ndimage}; gradient tại từng ô, lọc Gaussian và giá trị lớn nhất cục bộ cũng được
@@ -551,12 +574,18 @@ không có đơn vị được tính bằng
   0.25\frac{r}{0.10\ \mathrm{m}}+
   0.30\frac{h}{0.65\ \mathrm{m}}.
 \end{equation}
+Ba tỷ số lần lượt so sánh độ dốc, độ nhám và chiều cao bậc với ngưỡng tương
+ứng. Các trọng số 0,45, 0,25 và 0,30 quy định mức đóng góp của ba yếu tố vào
+chi phí tổng.
 Đặt $B(x,y)$ là biến logic cho một tư thế tâm robot. Quy tắc phân loại chính
 xác là
 \begin{equation}
   B=(\theta>28^\circ)\ \lor\ (r>0.10\ \mathrm{m})\ \lor\
   (h>0.65\ \mathrm{m})\ \lor\ (C_{\mathrm{trav}}\geq1).
 \end{equation}
+Do dùng phép ``hoặc'', tư thế bị chặn nếu vi phạm bất kỳ ngưỡng riêng lẻ nào
+hoặc nếu chi phí tổng đạt 1. Điều này ngăn một tư thế có nhiều yếu tố gần ngưỡng
+được coi là đi được chỉ vì từng yếu tố riêng vẫn chưa vượt ngưỡng.
 Tư thế đi được khi và chỉ khi $B$ sai và tâm không thuộc dải biên. Cụ thể, tâm
 bị chặn khi $x<R_c$, $x\geq W-R_c$, $y<R_c$ hoặc $y\geq H-R_c$. Mặt phẳng
 được khớp bằng phép tích chập với dữ liệu phản xạ ở biên mảng; khi
@@ -579,6 +608,9 @@ cạnh chung là
   c=\sqrt{d^2+\Delta z^2}
   \left[1+w\left(\frac{|\Delta z|}{d}\right)^2\right].
 \end{equation}
+Thừa số căn bậc hai là chiều dài ba chiều của bước chuyển. Thừa số trong ngoặc
+làm chi phí tăng theo bình phương độ dốc; vì vậy hai bước có cùng chiều dài ba
+chiều vẫn có thể có chi phí khác nhau nếu độ dốc khác nhau.
 Hàm mục tiêu toàn tuyến là tổng $c$ trên mọi bước chuyển. Quy tắc hợp lệ của
 chuyển động được dùng chung khi kiểm tra liên thông, chạy sáu thuật toán và kiểm
 tra đường đi. Chi phí $c$ được dùng để xếp hạng cặp điểm đầu--đích, tối ưu Dijkstra
@@ -605,6 +637,11 @@ nhãn \texttt{short}, \texttt{medium} và \texttt{long}. Nhiệm vụ dài nhấ
 đánh dấu là nhiệm vụ chuẩn để minh họa và đánh giá. Một bộ ba chỉ được chấp nhận
 nếu mọi cặp đã chọn vẫn liên thông theo mô hình chuyển động công bố ở cả ba mức
 độ khó.
+
+Nói ngắn gọn, chương trình xếp các cặp từ gần đến xa, lấy các đoạn tương ứng
+với ba khoảng phân vị rồi chọn các cặp cách đều trong từng đoạn. Các quy tắc
+dưới đây chỉ làm rõ cách xử lý chính xác khi có giá trị bằng nhau, cặp trùng
+hoặc không đủ cặp trong một đoạn.
 
 Để xử lý chính xác trường hợp trùng và thiếu, cặp điểm đầu--đích được lưu dưới dạng
 cặp không thứ tự rồi xếp trước hết theo khoảng cách có trọng số, sau đó theo thứ
